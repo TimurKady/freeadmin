@@ -91,14 +91,5 @@ class IntChoices(ChoicesMixin, IntEnum):
     def __str__(self) -> str:
         """Return the ``value`` as string."""
         return str(self.value)
-
-
-class TextChoices(StrChoices):
-    """String-based choices for admin and ORM models."""
-
-
-class IntegerChoices(IntChoices):
-    """Integer-based choices for admin and ORM models."""
-
 # The End
 

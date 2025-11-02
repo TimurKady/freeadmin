@@ -74,8 +74,6 @@ class ModelRegistry:
         base_exports = [
             "StrChoices",
             "IntChoices",
-            "TextChoices",
-            "IntegerChoices",
             "PermAction",
             "SettingValueType",
         ]

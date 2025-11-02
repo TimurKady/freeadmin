@@ -10,7 +10,7 @@ Email: timurkady@yandex.com
 
 from __future__ import annotations
 
-from .choices import IntChoices, IntegerChoices, StrChoices, TextChoices  # noqa: F401
+from .choices import IntChoices, StrChoices  # noqa: F401
 from .content_type import AdminContentType  # noqa: F401
 from .groups import AdminGroup, AdminGroupPermission  # noqa: F401
 from .setting import SystemSetting  # noqa: F401
