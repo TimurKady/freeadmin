@@ -89,7 +89,7 @@ def test_mount_favicon_supports_absolute_path(monkeypatch, tmp_path) -> None:
 def test_mount_favicon_resolves_packaged_static(monkeypatch, tmp_path) -> None:
     """Default packaged favicon should be resolved even with prefixed paths."""
 
-    static_dir = Path(__file__).resolve().parent.parent / "static"
+    static_dir = Path(__file__).resolve().parents[1] / "freeadmin" / "static"
 
     def fake_get_cached(key, default):
         if key == SettingsKey.FAVICON_PATH:

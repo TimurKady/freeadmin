@@ -11,7 +11,7 @@ Email: timurkady@yandex.com
 
 from __future__ import annotations
 
-from ...data.models.choices import StrChoices
+from ....models.choices import StrChoices
 
 __all__ = ["StrChoices"]
 

@@ -9,8 +9,8 @@ import warnings
 import pytest
 from tortoise.exceptions import OperationalError
 
-from freeadmin.core.data.orm import ORMConfig, ORMLifecycle
-from freeadmin.core.data.orm import config as orm_config_module
+from freeadmin.core.orm import ORMConfig, ORMLifecycle
+from freeadmin.core.orm import config as orm_config_module
 
 
 @pytest.mark.asyncio

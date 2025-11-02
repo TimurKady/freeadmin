@@ -17,7 +17,7 @@ from typing import Any, Dict
 from freeadmin.contrib.adapters.tortoise.adapter import (
     Adapter as TortoiseAdapter,
 )
-from freeadmin.core.data.orm import ORMConfig, ORMLifecycle
+from freeadmin.core.orm import ORMConfig, ORMLifecycle
 
 
 DB_ADAPTER = "tortoise"

@@ -16,7 +16,7 @@ from tortoise.models import Model
 from typing import Any
 import json
 
-from ....core.data.models.choices import StrChoices
+from ....models.choices import StrChoices
 
 
 class SettingValueType(StrChoices):

@@ -13,7 +13,7 @@ from __future__ import annotations
 from tortoise import fields
 from tortoise.models import Model
 
-from ....core.data.models.choices import StrChoices
+from ....models.choices import StrChoices
 from .content_type import AdminContentType
 
 

@@ -23,8 +23,8 @@ from fastapi import FastAPI
 from tortoise import Tortoise
 from tortoise import exceptions as tortoise_exceptions
 
-from ....contrib.adapters import registry
-from ....utils.migration_errors import MigrationErrorClassifier
+from ...contrib.adapters import registry
+from ...utils.migration_errors import MigrationErrorClassifier
 
 
 class ORMLifecycle:
@@ -105,7 +105,7 @@ class ORMLifecycle:
         """Mark the global configuration as requiring pending migrations."""
 
         try:
-            from ...interface.settings import system_config
+            from ..interface.settings import system_config
 
             system_config.flag_migrations_required()
         except Exception:  # pragma: no cover - defensive fall-through

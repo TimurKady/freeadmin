@@ -108,7 +108,7 @@ from typing import Any, Dict
 from freeadmin.contrib.adapters.tortoise.adapter import (
     Adapter as TortoiseAdapter,
 )
-from freeadmin.core.data.orm import ORMConfig
+from freeadmin.core.orm import ORMConfig
 
 DB_ADAPTER = "tortoise"
 APPLICATION_MODEL_MODULES: tuple[str, ...] = (
@@ -215,7 +215,7 @@ from typing import List
 from fastapi import FastAPI
 
 from freeadmin.core.boot import BootManager
-from freeadmin.core.data.orm import ORMConfig
+from freeadmin.core.orm import ORMConfig
 
 from .orm import ORM
 from .settings import ProjectSettings

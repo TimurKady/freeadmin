@@ -13,7 +13,7 @@ from __future__ import annotations
 from enum import Enum, EnumMeta
 from typing import Any, Dict, Tuple, Iterable, cast
 
-from ...core.data.models.choices import ChoicesMixin
+from ...models.choices import ChoicesMixin
 from .base import BaseWidget
 from .registry import registry
 
