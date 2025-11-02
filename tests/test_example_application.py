@@ -30,7 +30,7 @@ from tortoise import Tortoise
 from freeadmin.contrib.adapters.tortoise.adapter import (
     Adapter as TortoiseAdapter,
 )
-from freeadmin.core.data.orm import ORMConfig
+from freeadmin.core.orm import ORMConfig
 
 
 class TestExampleApplicationSmoke:

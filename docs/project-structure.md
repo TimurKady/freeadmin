@@ -44,7 +44,7 @@ from typing import List
 from fastapi import FastAPI
 
 from freeadmin.core.boot import BootManager
-from freeadmin.core.data.orm import ORMConfig
+from freeadmin.core.orm import ORMConfig
 
 from config.orm import ORM
 from config.settings import ProjectSettings

@@ -25,7 +25,7 @@ app = application.build()
   `describe()` helper returns a concise summary that is useful for debugging
   configuration during development.
 * `ExampleORMConfig` (`example/config/orm.py`) exports a ready-to-use
-  `ORMConfig` instance produced by :meth:`freeadmin.core.data.orm.ORMConfig.build`. The
+  `ORMConfig` instance produced by :meth:`freeadmin.core.orm.ORMConfig.build`. The
   declarative mapping lists project models alongside the admin/system modules
   that ship with the FreeAdmin Tortoise adapter. The helper still exposes
   `describe()` and `create_lifecycle()` methods which keeps lifecycle
@@ -56,7 +56,7 @@ app = application.build()
   ```python
   from copy import deepcopy
 
-  from freeadmin.core.data.orm import ORMConfig
+  from freeadmin.core.orm import ORMConfig
   from example.config.orm import DB_ADAPTER, ORM_CONFIG
 
 

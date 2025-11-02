@@ -8,7 +8,7 @@ This information reflects the file and logical structure of the `freeadmin/` dir
 
 | Path | Purpose | First-order Direct Dependencies |
 | --- | --- | --- |
-| `freeadmin/core/application/factory.py` | FastAPI application factory that wires settings, the ORM, and routers together | `freeadmin.core.boot.BootManager`, `freeadmin.core.data.orm.ORMConfig/ORMLifecycle`, `freeadmin.core.network.router.AdminRouter`, `freeadmin.core.runtime.hub.admin_site` |
+| `freeadmin/core/application/factory.py` | FastAPI application factory that wires settings, the ORM, and routers together | `freeadmin.core.boot.BootManager`, `freeadmin.core.orm.ORMConfig/ORMLifecycle`, `freeadmin.core.network.router.AdminRouter`, `freeadmin.core.runtime.hub.admin_site` |
 | `freeadmin/core/boot/manager.py` | Manages adapters, model registration, and hub startup | Adapter registry (`freeadmin.contrib.adapters`), system settings (`freeadmin.core.configuration.conf`), middleware `freeadmin.core.runtime.middleware.AdminGuardMiddleware`, hub `freeadmin.core.runtime.hub` |
 | `freeadmin/core/configuration/conf.py` | Configuration store and environment change observer | `os`, `pathlib`, synchronization via `threading.RLock` |
 | `freeadmin/core/runtime/hub.py` | Central admin hub that manages the site, autodiscovery, and routers | Settings (`freeadmin.core.configuration.conf`), `freeadmin.core.interface.site.AdminSite`, `freeadmin.core.interface.discovery.DiscoveryService`, `freeadmin.core.network.router.AdminRouter`, `freeadmin.core.boot.admin` |

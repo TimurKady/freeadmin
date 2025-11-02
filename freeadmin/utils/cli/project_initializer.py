@@ -73,7 +73,7 @@ from typing import List
 from fastapi import FastAPI
 
 from freeadmin.core.boot import BootManager
-from freeadmin.core.data.orm import ORMConfig
+from freeadmin.core.orm import ORMConfig
 
 from .orm import ORM
 from .settings import ProjectSettings
@@ -140,7 +140,7 @@ from typing import Any, Dict
 from freeadmin.contrib.adapters.tortoise.adapter import (
     Adapter as TortoiseAdapter,
 )
-from freeadmin.core.data.orm import ORMConfig
+from freeadmin.core.orm import ORMConfig
 
 # Adjust the adapter name to match the backend registered with FreeAdmin.
 DB_ADAPTER = "tortoise"
