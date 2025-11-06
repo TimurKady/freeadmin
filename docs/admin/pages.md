@@ -60,7 +60,8 @@ existing model admins.
 
 ```python
 from fastapi import Request
-from freeadmin.core.runtime.hub import admin_site, render
+from freeadmin.core.interface.templates.rendering import render_template
+from freeadmin.core.runtime.hub import admin_site
 
 
 @admin_site.register_view(
@@ -71,7 +72,7 @@ from freeadmin.core.runtime.hub import admin_site, render
 )
 async def blog_stats_view(request: Request):
     metrics = await load_blog_metrics()
-    return render("blog/stats.html", {"metrics": metrics}, request=request)
+    return render_template("blog/stats.html", {"metrics": metrics}, request=request)
 ```
 
 > **Note:** `AdminRouter.mount()` automatically adds the admin base path as a prefix,
