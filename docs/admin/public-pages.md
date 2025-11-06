@@ -29,6 +29,7 @@ from pathlib import Path
 from fastapi import Request
 
 from freeadmin.core.interface.pages import BaseTemplatePage
+from freeadmin.core.interface.settings import SettingsKey, system_config
 from freeadmin.core.runtime.hub import admin_site
 
 
@@ -39,19 +40,37 @@ class PublicWelcomePage(BaseTemplatePage):
     name = "Welcome"
     template = "pages/welcome.html"
     template_directory = Path(__file__).resolve().parent.parent / "templates"
+    icon = "bi-stars"
 
     def __init__(self) -> None:
         """Register the public welcome view when instantiated."""
 
         super().__init__(site=admin_site)
         self.register_public_view()
+        self.register_public_navigation()
+
+    def register_public_navigation(self) -> None:
+        """Register supplemental public navigation entries for the example."""
+
+        login_path = system_config.get_cached(SettingsKey.LOGIN_PATH, "/login")
+        admin_site.register_public_menu(
+            title="Sign in",
+            path=login_path,
+            icon="bi-box-arrow-in-right",
+        )
 
     async def get_context(
-        self, *, request: Request, user: object | None = None
+        self,
+        *,
+        request: Request,
+        user: object | None = None,
     ) -> dict[str, object]:
         """Return template context for the welcome example page."""
 
-        return {"subtitle": "Rendered outside the admin", "user": user}
+        return {
+            "subtitle": "Rendered outside the admin",
+            "user": user,
+        }
 
 
 public_welcome_page = PublicWelcomePage()
@@ -70,8 +89,11 @@ context-building logic, templates, or even static assets between both
 interfaces.
 
 The site automatically registers each public view in the public navigation menu.
-Additional links that do not correspond to registered views can be exposed with
-``register_public_menu()``:
+The example above supplements that menu with a dedicated "Sign in" entry by
+calling :meth:`PublicWelcomePage.register_public_navigation`, which internally
+invokes :func:`freeadmin.core.runtime.hub.AdminSite.register_public_menu`.
+You can also register additional links directly when you need to expose a
+standalone destination:
 
 ```python
 from freeadmin.core.runtime.hub import admin_site

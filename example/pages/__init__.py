@@ -12,16 +12,13 @@ Email: timurkady@yandex.com
 from __future__ import annotations
 
 from .home import ExampleWelcomePage, example_welcome_page
-from .public_welcome import (
-    ExamplePublicWelcomeContext,
-    example_public_welcome_context,
-)
+from .public_welcome import PublicWelcomePage, public_welcome_page
 
 __all__ = [
     "ExampleWelcomePage",
     "example_welcome_page",
-    "ExamplePublicWelcomeContext",
-    "example_public_welcome_context",
+    "PublicWelcomePage",
+    "public_welcome_page",
 ]
 
 # The End
