@@ -6,7 +6,7 @@ FreeAdmin public pages let you showcase product capabilities to unauthenticated 
 ## Page Architecture
 1. **Inherit the base class.** Derive your page from `BaseTemplatePage` so that the instance reuses the admin site's configuration and lifecycle hooks.
    ```python
-   from freeadmin.ui.pages import BaseTemplatePage
+   from freeadmin.core.interface.pages import BaseTemplatePage
 
    class MarketingLanding(BaseTemplatePage):
        path = "/marketing"
@@ -16,14 +16,28 @@ FreeAdmin public pages let you showcase product capabilities to unauthenticated 
        template_directory = "marketing"
 
        def __init__(self, admin_site):
-           super().__init__(admin_site)
+           super().__init__(site=admin_site)
    ```
 2. **Lock in routing attributes.** Declare `path`, `name`, `icon`, `template`, and `template_directory` at class level. FreeAdmin reads them during registration to wire routing and template resolution.
-3. **Override `register`.** Call `register_public_view` inside `register` to expose the page through the public router.
+3. **Override `register`.** Call :meth:`BaseTemplatePage.register_public_view` inside your `register` implementation (or register an explicit handler with `admin_site.register_public_view`) to expose the page through the public router without handing `self` to the decorator.
    ```python
    def register(self):
        super().register()
-       self.admin_site.register_public_view(self.path, self)
+       self.register_public_view()
+   ```
+   ```python
+   def register(self):
+       super().register()
+
+       async def landing_handler(request, user=None):
+           return await self.get_context(request=request, user=user)
+
+       self.admin_site.register_public_view(
+           path=self.path,
+           name=self.name,
+           template=self.template,
+           icon=self.icon,
+       )(landing_handler)
    ```
 
 ## Content Modeling
@@ -126,18 +140,19 @@ FreeAdmin public pages let you showcase product capabilities to unauthenticated 
 ## Navigation and Menus
 1. **Menu registration.** Implement `public_menu` to aggregate `MenuItem` instances from the registered public views.
    ```python
-   from freeadmin.ui.menu import MenuItem
+   from freeadmin.core.interface.registry import MenuItem
 
    class MarketingLanding(BaseTemplatePage):
        ...
 
        def public_menu(self) -> tuple[MenuItem, ...]:
+           menu_items = self.admin_site.public_menu_builder.build_menu()
            return tuple(
-               MenuItem(path=view.path, label=view.name, icon=view.icon)
-               for view in self.admin_site.public_views
+               MenuItem(title=item.title, path=item.path, icon=item.icon)
+               for item in menu_items
            )
    ```
-2. **Consistent navigation.** Iterate over registered descriptors so visitors experience a unified set of landing pages.
+2. **Consistent navigation.** Use the menu builder (or iterate over `admin_site.pages.iter_public_routers()`) so visitors experience a unified set of landing pages that stay in sync with registered views.
 
 ## Templates
 1. **Structured blocks.** Break the template into blocks—hero, benefits, stages, signals, call to action—to support reuse across multiple pages.
