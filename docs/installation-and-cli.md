@@ -326,13 +326,16 @@ from tortoise import Tortoise
 async def prepare() -> None:
     await Tortoise.init(
         db_url="sqlite:///./db.sqlite3",
-        modules={"models": ["apps.blog.models", "freeadmin.contrib.auth.models"]},
+        modules={"models": ["apps.blog.models", "freeadmin.contrib.apps.system.models"]},
     )
     await Tortoise.generate_schemas()
 
 
 asyncio.run(prepare())
 ```
+
+`freeadmin.contrib.apps.system.models` ships with the adapter and exposes the system tables (including authentication models)
+required by the admin interface.
 
 
 ## Step 11. Run the development server
