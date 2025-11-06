@@ -20,7 +20,7 @@ from freeadmin.core.interface.settings import SettingsKey, system_config
 from freeadmin.core.runtime.hub import admin_site
 
 
-class ExamplePublicWelcomeContext(BaseTemplatePage):
+class PublicWelcomePage(BaseTemplatePage):
     """Register the example public welcome page with the admin site."""
 
     path = "/"
@@ -60,7 +60,7 @@ class ExamplePublicWelcomeContext(BaseTemplatePage):
         }
 
 
-example_public_welcome_context = ExamplePublicWelcomeContext()
+public_welcome_page = PublicWelcomePage()
 
 
 # The End
