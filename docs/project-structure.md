@@ -92,15 +92,16 @@ app = ApplicationFactory().build()
 
 Each folder inside `apps/` represents a logical component of your system. The CLI scaffolder creates empty modules so you can decide how to organise the code:
 
-| File        | Typical contents |
-| ----------- | ---------------- |
-| `app.py`    | `AppConfig` subclass for startup hooks. |
-| `models.py` | Tortoise ORM models. |
-| `admin.py`  | `ModelAdmin` classes and calls to `admin_site.register`. |
-| `views.py`  | Optional custom admin views registered with `admin_site.register_view`. |
-| `cards.py`  | Optional dashboard card registrations. |
-| `router.py` | Optional application API endpoints |
-| `tasks.py`  | Optional application Cellery tasks |
+| File          | Typical contents |
+| ------------- | ---------------- |
+| `app.py`      | `AppConfig` subclass for startup hooks. |
+| `models.py`   | Tortoise ORM models. |
+| `admin.py`    | `ModelAdmin` classes and calls to `admin_site.register`. |
+| `managers.py` | Optional custom managers. |
+| `views.py`    | Optional custom admin views registered with `admin_site.register_view`. |
+| `cards.py`    | Optional dashboard card registrations. |
+| `router.py`   | Optional application API endpoints |
+| `tasks.py`    | Optional application Cellery tasks |
 
 A minimal `views.py` might expose a bespoke report page:
 
