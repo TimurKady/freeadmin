@@ -316,7 +316,7 @@ docker compose exec <container_name> bash
 After
 
 ```bash
-aerich init -t config.orm.ORM_CONFIG
+aerich init -t <myproject>.config.orm.ORM_CONFIG
 ```
 
 Create the initial migration structure
