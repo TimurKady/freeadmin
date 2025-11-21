@@ -305,8 +305,59 @@ export FA_DATABASE_URL="sqlite:///./db.sqlite3"
 
 For PostgreSQL use a DSN such as `postgres://user:password@localhost:5432/mydb`.
 
+## Make migrations
 
-## Step 10. Create an admin user
+First enter to container
+
+```bash
+docker compose exec cortex bash
+```
+
+After
+
+```bash
+aerich init -t config.orm.ORM_CONFIG
+```
+
+Create the initial migration structure
+
+```bash
+aerich init-db
+```
+
+> **Note:** Aerich can be re-run safely even if the `migrations` folders already contain
+> generated files. The command detects existing schema state and skips recreating the
+> project structure instead of raising `FileExistsError`, so no additional compatibility
+> hooks are required.
+
+After changing models
+
+```bash
+aerich migrate
+aerich upgrade
+```
+
+If aerich is not found, try
+
+```bash
+poetry run aerich migrate
+
+or
+
+python -m aerich migrate
+```
+
+Dedicated Aerich apps exist for the admin interface and the logging database. Initialize them once per environment (and re-run migrations when schemas change) via:
+
+```bash
+aerich --app admin init-db
+aerich --app admin upgrade
+
+aerich --app logger init-db
+aerich --app logger upgrade
+```
+
+## Step 11. Create an admin user
 
 The CLI can create superusers for the bundled authentication models. Make sure the required tables already exist (for example by running your migrations or calling `Tortoise.generate_schemas()` after initialising the ORM) before executing the command:
 
@@ -339,7 +390,7 @@ asyncio.run(prepare())
 required by the admin interface.
 
 
-## Step 11. Run the development server
+## Step 12. Run the development server
 
 Use Uvicorn (or your ASGI server of choice) to run the FastAPI application:
 
@@ -352,7 +403,7 @@ Visit `http://127.0.0.1:8000/admin` (or the prefix you configured) and sign in w
 > **Heads up:** FreeAdmin boots even when your database has no migrations. Public routes and any custom FastAPI routers remain available, but visiting the admin will redirect you to a setup notice that explains the missing schema. Use the migration or schema generation workflow for your adapter to unlock the full interface.
 
 
-## Step 12. Troubleshooting tips
+## Step 13. Troubleshooting tips
 
 * **CLI cannot find `apps/`:** run the command from the project root where the scaffold created the folder.
 * **Models not discovered:** ensure the module path (e.g. `apps.blog.models`) is listed in `modules["models"]` when initialising Tortoise.
