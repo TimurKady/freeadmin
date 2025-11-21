@@ -305,7 +305,7 @@ export FA_DATABASE_URL="sqlite:///./db.sqlite3"
 
 For PostgreSQL use a DSN such as `postgres://user:password@localhost:5432/mydb`.
 
-## Make migrations
+## Step 10. Make migrations
 
 First enter to container
 
