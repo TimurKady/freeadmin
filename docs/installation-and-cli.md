@@ -310,7 +310,7 @@ For PostgreSQL use a DSN such as `postgres://user:password@localhost:5432/mydb`.
 First enter to container
 
 ```bash
-docker compose exec cortex bash
+docker compose exec <container_name> bash
 ```
 
 After
