@@ -116,6 +116,7 @@ APPLICATION_MODEL_MODULES: tuple[str, ...] = (
 )
 SYSTEM_MODEL_MODULES: tuple[str, ...] = (
     "freeadmin.contrib.apps.system.models",
+        "aerich.models",
 )
 # Include adapter-provided admin models to enable the FreeAdmin UI resources.
 ADMIN_MODEL_MODULES: tuple[str, ...] = tuple(TortoiseAdapter.model_modules)
