@@ -136,6 +136,7 @@ class TemplateContextBuilder:
             "system_config": system_config,
             "site_title": admin_site.title,
             "brand_icon": admin_site.brand_icon,
+            "is_admin_request": True,
             "prefix": admin_prefix,
             "ORM_PREFIX": orm_prefix,
             "SETTINGS_PREFIX": settings_prefix,
