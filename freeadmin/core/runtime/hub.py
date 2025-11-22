@@ -26,6 +26,7 @@ from ..interface.site import AdminSite
 from ..interface.discovery import DiscoveryService
 from ..network.router import AdminRouter
 from freeadmin.core.boot import admin as boot_admin
+from freeadmin.contrib.apps.system.apps import default_app_config
 
 
 class AdminHub:
@@ -46,6 +47,7 @@ class AdminHub:
         self.admin_site = AdminSite(
             boot_admin.adapter, title=site_title, settings=self._settings
         )
+        default_app_config.ready(self.admin_site)
         self.discovery = DiscoveryService()
         self._app_configs: Dict[str, AppConfig] = {}
         self._started_configs: Set[str] = set()
