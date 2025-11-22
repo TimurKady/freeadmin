@@ -114,9 +114,8 @@ DB_ADAPTER = "tortoise"
 APPLICATION_MODEL_MODULES: tuple[str, ...] = (
     "apps.blog.models",
 )
-ADMIN_MODEL_MODULES: tuple[str, ...] = (
-    *TortoiseAdapter.model_modules,
-    "aerich.models",
+ADMIN_MODEL_MODULES: tuple[str, ...] = tuple(
+    [*TortoiseAdapter.model_modules, "aerich.models"]
 )
 
 ORM_CONFIG: Dict[str, Dict[str, Any]] = {
@@ -142,7 +141,7 @@ ORM: ORMConfig = ORMConfig.build(
 ```
 
 For PostgreSQL or another backend, change the DSN stored in `ORM_CONFIG["connections"]` and adjust the module lists so discovery imports your models.
-
+The adapter already exposes the built-in admin models through `TortoiseAdapter.model_modules`; rely on that tuple instead of referencing the deprecated `freeadmin.contrib.apps.system.models` path. Aerich still needs its own migration models, so append `"aerich.models"` to the admin app list to avoid initialization errors when running migrations.
 
 ## Step 6. Create an application package
 
