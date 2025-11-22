@@ -66,17 +66,8 @@ class SidebarBuilder:
         orm_segments = cls._split_prefix(normalized_orm)
         settings_segments = cls._split_prefix(normalized_settings)
 
-        is_views_section = resolution.section_mode == "views"
-        include_apps = not is_views_section
-
-        raw_apps = (
-            cls.collect(admin_site, cls.KIND_APPS, settings_mode) if include_apps else []
-        )
-        view_groups = (
-            cls.collect(admin_site, cls.KIND_VIEWS, settings_mode)
-            if is_views_section
-            else []
-        )
+        raw_apps = cls.collect(admin_site, cls.KIND_APPS, settings_mode)
+        view_groups = cls.collect(admin_site, cls.KIND_VIEWS, settings_mode)
 
         combined: Dict[str, List[Dict[str, Any]]] = {label: list(models) for label, models in raw_apps}
         for label, entries in view_groups:
