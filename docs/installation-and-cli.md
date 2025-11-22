@@ -114,12 +114,11 @@ DB_ADAPTER = "tortoise"
 APPLICATION_MODEL_MODULES: tuple[str, ...] = (
     "apps.blog.models",
 )
-SYSTEM_MODEL_MODULES: tuple[str, ...] = (
-    "freeadmin.contrib.apps.system.models",
-        "aerich.models",
+ADMIN_MODEL_MODULES: tuple[str, ...] = (
+    *TortoiseAdapter.model_modules,
+    "aerich.models",
 )
-# Include adapter-provided admin models to enable the FreeAdmin UI resources.
-ADMIN_MODEL_MODULES: tuple[str, ...] = tuple(TortoiseAdapter.model_modules)
+# Include adapter-provided admin models and migrations to enable the FreeAdmin UI resources.
 
 ORM_CONFIG: Dict[str, Dict[str, Any]] = {
     "connections": {
@@ -128,10 +127,6 @@ ORM_CONFIG: Dict[str, Dict[str, Any]] = {
     "apps": {
         "models": {
             "models": list(APPLICATION_MODEL_MODULES),
-            "default_connection": "default",
-        },
-        "system": {
-            "models": list(SYSTEM_MODEL_MODULES),
             "default_connection": "default",
         },
         "admin": {
@@ -378,7 +373,10 @@ from tortoise import Tortoise
 async def prepare() -> None:
     await Tortoise.init(
         db_url="sqlite:///./db.sqlite3",
-        modules={"models": ["apps.blog.models", "freeadmin.contrib.apps.system.models"]},
+        modules={
+            "models": ["apps.blog.models"],
+            "admin": ["freeadmin.contrib.adapters.tortoise.users"],
+        },
     )
     await Tortoise.generate_schemas()
 
@@ -386,8 +384,9 @@ async def prepare() -> None:
 asyncio.run(prepare())
 ```
 
-`freeadmin.contrib.apps.system.models` ships with the adapter and exposes the system tables (including authentication models)
-required by the admin interface.
+FreeAdmin registers its Tortoise admin models under the `admin` app label. Point `modules["admin"]` at the adapter's model
+modules (for example `freeadmin.contrib.adapters.tortoise.users`) instead of your primary app to avoid Tortoise warnings about
+empty modules during initialisation.
 
 
 ## Step 12. Run the development server

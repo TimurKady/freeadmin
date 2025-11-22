@@ -153,11 +153,6 @@ APPLICATION_MODEL_MODULES: tuple[str, ...] = (
 """Application model modules included in the project."""
 
 # Keep the system modules so FreeAdmin can bootstrap built-in functionality.
-SYSTEM_MODEL_MODULES: tuple[str, ...] = (
-    "freeadmin.contrib.apps.system.models",
-)
-"""System-level model modules exposed for admin helpers."""
-
 # Include adapter-provided admin models to enable the FreeAdmin UI resources.
 ADMIN_MODEL_MODULES: tuple[str, ...] = tuple(TortoiseAdapter.model_modules)
 """Admin model modules shipped with the selected adapter."""
@@ -168,16 +163,12 @@ ORM_CONFIG: Dict[str, Dict[str, Any]] = {{
         "default": "sqlite://:memory:",
     }},
     "apps": {{
-        "models": {{
-            "models": list(APPLICATION_MODEL_MODULES),
-            "default_connection": "default",
-        }},
-        "system": {{
-            "models": list(SYSTEM_MODEL_MODULES),
-            "default_connection": "default",
-        }},
         "admin": {{
             "models": list(ADMIN_MODEL_MODULES),
+            "default_connection": "default",
+        }},
+        "models": {{
+            "models": list(APPLICATION_MODEL_MODULES),
             "default_connection": "default",
         }},
     }},
@@ -198,7 +189,6 @@ __all__ = [
     "DB_ADAPTER",
     "ORM",
     "ORM_CONFIG",
-    "SYSTEM_MODEL_MODULES",
 ]
 
 

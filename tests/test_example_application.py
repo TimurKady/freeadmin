@@ -21,7 +21,6 @@ from example.config.main import ExampleApplication
 from example.config.orm import (
     ADMIN_APP_MODULES,
     MODELS_APP_MODULES,
-    SYSTEM_APP_MODULES,
     ExampleORMConfig,
 )
 from tests.sampleapp.app import default as sample_app_config
@@ -146,10 +145,9 @@ class TestExampleApplicationStartup:
             apps = recorded_config["apps"]
             project_modules = set(apps["models"]["models"])
             assert set(MODELS_APP_MODULES).issubset(project_modules)
-            system_modules = set(apps["system"]["models"])
-            assert set(SYSTEM_APP_MODULES).issubset(system_modules)
             admin_modules = set(apps["admin"]["models"])
             assert set(ADMIN_APP_MODULES).issubset(admin_modules)
+            assert "system" not in apps
         finally:
             await app.router.shutdown()
 
