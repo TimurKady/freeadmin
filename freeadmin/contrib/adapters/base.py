@@ -36,6 +36,7 @@ class BaseAdapter(Protocol):
     content_type_model: type
     system_setting_model: type
     perm_action: type
+    setting_value_type: type
 
     # basic ORM helpers
     def get_model_descriptor(self, model: type) -> Any: ...
