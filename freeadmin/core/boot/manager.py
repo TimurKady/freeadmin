@@ -271,10 +271,10 @@ class BootManager:
         """Return the cached admin hub instance, importing on first access."""
 
         if self._hub is None:
-            import freeadmin.core.runtime.hub as runtime_hub
+            runtime_hub = import_module("freeadmin.core.runtime.hub")
             from ..runtime.hub import AdminHub
 
-            existing_hub = runtime_hub.hub
+            existing_hub = getattr(runtime_hub, "hub", None)
             if existing_hub is not None:
                 existing_adapter = existing_hub.admin_site.adapter
                 if self._adapter is None:
