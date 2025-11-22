@@ -32,7 +32,8 @@ class SystemAppConfig:
 
         self._urls = SystemURLRegistrar()
         self._admin_imported = False
-
+        self._ready = False
+    
     def ensure_admin_imported(self) -> None:
         """Import system admin configuration exactly once."""
 
@@ -48,10 +49,13 @@ class SystemAppConfig:
         return self._urls
 
     def ready(self, site: "AdminSite") -> None:
-        """Register built-in URLs and menus against ``site``."""
+        """Register built-in URLs and menus against ``site`` once."""
 
+        if self._ready:
+            return
         self.ensure_admin_imported()
         self._urls.register(site)
+        self._ready = True
 
 
 default_app_config = SystemAppConfig()
