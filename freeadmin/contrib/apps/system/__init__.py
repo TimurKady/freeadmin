@@ -16,13 +16,15 @@ from .admin import (
     AdminUserPermissionAdmin,
     SystemSettingAdmin,
 )
-from freeadmin.contrib.adapters.tortoise.content_type import AdminContentType
-from freeadmin.contrib.adapters.tortoise.groups import AdminGroup, AdminGroupPermission
-from freeadmin.contrib.adapters.tortoise.setting import SettingValueType, SystemSetting
-from freeadmin.contrib.adapters.tortoise.users import (
+from .exports import (
+    AdminContentType,
+    AdminGroup,
+    AdminGroupPermission,
     AdminUser,
     AdminUserPermission,
     PermAction,
+    SettingValueType,
+    SystemSetting,
 )
 from .urls import SystemURLRegistrar
 from .views import BuiltinPagesRegistrar, BuiltinUserMenuRegistrar

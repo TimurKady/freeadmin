@@ -146,6 +146,7 @@ class BootManager:
         )
 
         admin_hub = self._ensure_hub()
+        self._validate_system_models()
         self._ensure_system_app().ready(admin_hub.admin_site)
         admin_hub.init_app(app, packages=packages)
 
@@ -167,6 +168,7 @@ class BootManager:
             self._ensure_config()
             await self._config.ensure_seed()
             await self._config.reload()
+
 
     def register_shutdown(self, app: FastAPI) -> None:
         """Register shutdown hooks for admin background services."""
@@ -227,6 +229,36 @@ class BootManager:
         """Refresh internal cache whenever global settings are reconfigured."""
 
         self._settings = settings
+
+    def _validate_system_models(self) -> None:
+        """Ensure the active adapter exposes all system application dependencies."""
+
+        if self._adapter is None:
+            return
+
+        required_attributes = {
+            "user_model": "user model",
+            "user_permission_model": "user permission model",
+            "group_model": "group model",
+            "group_permission_model": "group permission model",
+            "content_type_model": "content type model",
+            "system_setting_model": "system setting model",
+            "perm_action": "permission action enumeration",
+            "setting_value_type": "setting value enumeration",
+        }
+
+        missing = [
+            description
+            for attr, description in required_attributes.items()
+            if getattr(self._adapter, attr, None) is None
+        ]
+
+        if missing:
+            adapter_name = getattr(self._adapter, "name", "unknown")
+            missing_display = ", ".join(missing)
+            raise RuntimeError(
+                f"Adapter '{adapter_name}' is missing required system components: {missing_display}."
+            )
 
 
 admin = BootManager(adapter_name="tortoise")
