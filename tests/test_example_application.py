@@ -145,9 +145,9 @@ class TestExampleApplicationStartup:
             apps = recorded_config["apps"]
             project_modules = set(apps["models"]["models"])
             assert set(MODELS_APP_MODULES).issubset(project_modules)
-            system_modules = set(apps["system"]["models"])
+            assert "admin" in apps
+            admin_modules = set(apps["admin"]["models"])
             assert set(ADMIN_APP_MODULES).issubset(admin_modules)
-            assert "system" not in apps
         finally:
             await app.router.shutdown()
 
