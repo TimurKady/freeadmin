@@ -152,10 +152,13 @@ APPLICATION_MODEL_MODULES: tuple[str, ...] = (
 )
 """Application model modules included in the project."""
 
-# Keep the system modules so FreeAdmin can bootstrap built-in functionality.
-# Include adapter-provided admin models to enable the FreeAdmin UI resources.
-ADMIN_MODEL_MODULES: tuple[str, ...] = tuple(TortoiseAdapter.model_modules)
-"""Admin model modules shipped with the selected adapter."""
+# Keep the adapter-provided modules so FreeAdmin can bootstrap built-in functionality.
+# Include adapter-provided admin models to enable the FreeAdmin UI resources and add
+# Aerich's migration tables so `aerich` commands initialise correctly.
+ADMIN_MODEL_MODULES: tuple[str, ...] = tuple(
+    [*TortoiseAdapter.model_modules, "aerich.models"]
+)
+"""Admin model modules shipped with the selected adapter and Aerich."""
 
 # Update the connections and app configuration to reflect your data sources.
 ORM_CONFIG: Dict[str, Dict[str, Any]] = {{
