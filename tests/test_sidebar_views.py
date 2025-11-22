@@ -11,6 +11,8 @@ Email: timurkady@yandex.com
 
 from __future__ import annotations
 
+from starlette.requests import Request
+
 from freeadmin.core.boot import admin as boot_admin
 from freeadmin.core.interface.settings import SettingsKey, system_config
 from freeadmin.core.interface.site import AdminSite
