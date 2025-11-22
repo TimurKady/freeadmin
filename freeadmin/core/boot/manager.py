@@ -11,6 +11,8 @@ Email: timurkady@yandex.com
 
 from __future__ import annotations
 
+import logging
+
 from fastapi import FastAPI
 from importlib import import_module
 import pkgutil
@@ -34,6 +36,8 @@ if TYPE_CHECKING:  # pragma: no cover
 
 class BootManager:
     """Centralized application boot utilities."""
+
+    logger = logging.getLogger(__name__)
 
     def __init__(
         self,
@@ -129,8 +133,35 @@ class BootManager:
             self._adapter = self._find_adapter(adapter)
             self._register_model_modules()
 
+        selected_adapter = self.adapter
+        if self.logger.isEnabledFor(logging.DEBUG):
+            self.logger.debug(
+                "Boot initialization adapter resolved",
+                extra={
+                    "adapter": getattr(selected_adapter, "name", None),
+                    "model_modules": list(getattr(selected_adapter, "model_modules", [])),
+                },
+            )
+
         if packages:
             self._load_app_configs_from_packages(packages)
+            registry = getattr(self._model_registrar, "_registry", None)
+            registered_configs = 0
+            registered_modules = 0
+            if registry is not None:
+                configs = getattr(registry, "_configs", {})
+                modules_by_label = getattr(registry, "_modules_by_label", {})
+                registered_configs = len(configs)
+                registered_modules = sum(len(mods) for mods in modules_by_label.values())
+            if self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(
+                    "Boot initialization app configs loaded",
+                    extra={
+                        "packages": list(packages),
+                        "registered_app_configs": registered_configs,
+                        "model_module_count": registered_modules,
+                    },
+                )
 
         from ..runtime.middleware import AdminGuardMiddleware
         from ..interface.settings import SettingsKey, system_config
@@ -153,9 +184,46 @@ class BootManager:
         @app.on_event("startup")
         async def _finalize_admin_site() -> None:
             hub_ref = self._ensure_hub()
+            site = hub_ref.admin_site
+            if self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(
+                    "Admin site finalize starting",
+                    extra={
+                        "adapter": getattr(site.adapter, "name", None),
+                        "model_admins": len(site.model_reg),
+                        "main_menu_items": len(site.menu_builder.build_main_menu(site.registry)),
+                        "user_menu_items": len(site.menu_builder.build_user_menu(site.registry)),
+                    },
+                )
             await hub_ref.start_app_configs()
             await hub_ref.admin_site.finalize()
+            if self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(
+                    "Admin site finalize complete",
+                    extra={
+                        "adapter": getattr(site.adapter, "name", None),
+                        "model_admins": len(site.model_reg),
+                        "main_menu_items": len(site.menu_builder.build_main_menu(site.registry)),
+                        "user_menu_items": len(site.menu_builder.build_user_menu(site.registry)),
+                    },
+                )
+            if self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(
+                    "Card publishers starting",
+                    extra={
+                        "adapter": getattr(site.adapter, "name", None),
+                        "cards_registered": len(list(site.cards.iter_cards())),
+                    },
+                )
             await hub_ref.admin_site.cards.start_publishers()
+            if self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(
+                    "Card publishers started",
+                    extra={
+                        "adapter": getattr(site.adapter, "name", None),
+                        "cards_registered": len(list(site.cards.iter_cards())),
+                    },
+                )
 
         self.register_startup(app)
         self.register_shutdown(app)

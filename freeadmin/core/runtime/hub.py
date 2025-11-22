@@ -85,6 +85,26 @@ class AdminHub:
             new_config_registered = True
         if new_config_registered:
             self._invalidate_router_cache()
+        if self.logger.isEnabledFor(logging.DEBUG):
+            adapter = getattr(self.admin_site.adapter, "name", None)
+            model_modules = list(getattr(self.admin_site.adapter, "model_modules", []))
+            self.logger.debug(
+                "AdminHub autodiscover complete",
+                extra={
+                    "adapter": adapter,
+                    "model_modules": model_modules,
+                    "packages": roots,
+                    "discovered_app_configs": [config.import_path for config in configs],
+                    "registered_app_configs": list(self._app_configs.keys()),
+                    "model_admins": len(self.admin_site.model_reg),
+                    "main_menu_items": len(
+                        self.admin_site.menu_builder.build_main_menu(self.admin_site.registry)
+                    ),
+                    "user_menu_items": len(
+                        self.admin_site.menu_builder.build_user_menu(self.admin_site.registry)
+                    ),
+                },
+            )
         return configs
 
     def init_app(self, app: FastAPI, *, packages: Optional[List[str]] = None) -> None:
@@ -97,6 +117,26 @@ class AdminHub:
     async def start_app_configs(self) -> None:
         """Invoke startup hooks for discovered application configurations."""
 
+        if self.logger.isEnabledFor(logging.DEBUG):
+            adapter = getattr(self.admin_site.adapter, "name", None)
+            model_modules = list(getattr(self.admin_site.adapter, "model_modules", []))
+            self.logger.debug(
+                "AdminHub app configs startup beginning",
+                extra={
+                    "adapter": adapter,
+                    "model_modules": model_modules,
+                    "pending_app_configs": [
+                        path for path in self._app_configs.keys() if path not in self._started_configs
+                    ],
+                    "model_admins": len(self.admin_site.model_reg),
+                    "main_menu_items": len(
+                        self.admin_site.menu_builder.build_main_menu(self.admin_site.registry)
+                    ),
+                    "user_menu_items": len(
+                        self.admin_site.menu_builder.build_user_menu(self.admin_site.registry)
+                    ),
+                },
+            )
         for path, config in list(self._app_configs.items()):
             if path in self._started_configs:
                 continue
@@ -108,6 +148,24 @@ class AdminHub:
                 )
                 continue
             self._started_configs.add(path)
+        if self.logger.isEnabledFor(logging.DEBUG):
+            adapter = getattr(self.admin_site.adapter, "name", None)
+            model_modules = list(getattr(self.admin_site.adapter, "model_modules", []))
+            self.logger.debug(
+                "AdminHub app configs startup complete",
+                extra={
+                    "adapter": adapter,
+                    "model_modules": model_modules,
+                    "started_app_configs": list(self._started_configs),
+                    "model_admins": len(self.admin_site.model_reg),
+                    "main_menu_items": len(
+                        self.admin_site.menu_builder.build_main_menu(self.admin_site.registry)
+                    ),
+                    "user_menu_items": len(
+                        self.admin_site.menu_builder.build_user_menu(self.admin_site.registry)
+                    ),
+                },
+            )
 
     def _handle_settings_update(self, settings: FreeAdminSettings) -> None:
         """Propagate new configuration to managed services."""
