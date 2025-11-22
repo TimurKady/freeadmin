@@ -46,7 +46,7 @@ class AdminHub:
         self.admin_site = AdminSite(
             boot_admin.adapter, title=site_title, settings=self._settings
         )
-        self._system_app = self._load_system_app()
+        self._system_app = getattr(boot_admin, "_system_app", None)
         self._system_app_ready = False
         self.discovery = DiscoveryService()
         self._app_configs: Dict[str, AppConfig] = {}
@@ -127,14 +127,22 @@ class AdminHub:
     def _load_system_app(self):
         """Instantiate the built-in system app configuration."""
 
+        if getattr(boot_admin, "_system_app", None) is not None:
+            return boot_admin._system_app
+
         from ...contrib.apps.system.apps import SystemAppConfig
 
-        return SystemAppConfig()
+        system_app = SystemAppConfig()
+        boot_admin._system_app = system_app
+        return system_app
 
     def _ensure_system_app_ready(self) -> None:
         """Load and register the system application once before mounting."""
 
-        if self._system_app_ready:
+        if self._system_app is None:
+            self._system_app = self._load_system_app()
+        if self._system_app_ready or getattr(self._system_app, "_ready", False):
+            self._system_app_ready = True
             return
         self._system_app.ready(self.admin_site)
         self._system_app_ready = True
