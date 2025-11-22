@@ -26,6 +26,7 @@ from ..interface.site import AdminSite
 from ..interface.discovery import DiscoveryService
 from ..network.router import AdminRouter
 from freeadmin.core.boot import admin as boot_admin
+from freeadmin.contrib.apps.system.apps import default_app_config
 
 
 class AdminHub:
@@ -123,6 +124,9 @@ class AdminHub:
         if callable(invalidate):
             invalidate()
         self._router = None
+        
+    def _load_system_app(self):
+        """Instantiate the built-in system app configuration."""
 
     def _load_system_app(self):
         """Instantiate the built-in system app configuration."""
@@ -144,7 +148,6 @@ class AdminHub:
             return
         self._system_app.ready(self.admin_site)
         self._system_app_ready = True
-
 
 hub = AdminHub()
 admin_site = hub.admin_site
