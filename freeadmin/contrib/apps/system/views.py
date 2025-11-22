@@ -25,6 +25,10 @@ class BuiltinPagesRegistrar:
     def __init__(self) -> None:
         """Initialize cached settings-driven page metadata."""
 
+        self.dashboard_title = system_config.get_cached(
+            SettingsKey.DASHBOARD_PAGE_TITLE, "Dashboard"
+        )
+        self.dashboard_icon = "bi-speedometer2"
         self.views_prefix = system_config.get_cached(SettingsKey.VIEWS_PREFIX, "/views")
         self.views_title = system_config.get_cached(SettingsKey.VIEWS_PAGE_TITLE, "Views")
         self.views_icon = system_config.get_cached(SettingsKey.VIEWS_PAGE_ICON, "bi-eye")
@@ -34,10 +38,19 @@ class BuiltinPagesRegistrar:
         self.settings_prefix = system_config.get_cached(SettingsKey.SETTINGS_PREFIX, "/settings")
         self.settings_title = system_config.get_cached(SettingsKey.SETTINGS_PAGE_TITLE, "Settings")
         self.settings_icon = system_config.get_cached(SettingsKey.SETTINGS_PAGE_ICON, "bi-gear")
+        self.default_page_type = system_config.get_cached(
+            SettingsKey.PAGE_TYPE_VIEW, "view"
+        )
 
     def register(self, site: "AdminSite") -> None:
         """Attach the built-in admin pages to ``site``."""
 
+        site.menu_builder.register_item(
+            title=self.dashboard_title,
+            path="/",
+            icon=self.dashboard_icon,
+            page_type=self.default_page_type,
+        )
         @site.register_view(
             path=self.views_prefix,
             name=self.views_title,

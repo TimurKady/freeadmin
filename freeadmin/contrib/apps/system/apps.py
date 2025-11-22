@@ -38,8 +38,11 @@ class SystemAppConfig:
         return self._urls
 
     def ready(self, site: "AdminSite") -> None:
-        """Register built-in URLs and menus against ``site``."""
+        """Register built-in model admins and URLs against ``site``."""
 
+        from .admins import SystemAdminRegistrar
+
+        SystemAdminRegistrar().register(site)
         self._urls.register(site)
 
 

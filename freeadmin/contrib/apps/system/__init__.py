@@ -9,11 +9,13 @@ Email: timurkady@yandex.com
 """
 
 from .apps import SystemAppConfig, default_app_config
-from .admin import (
+from .admins import (
     AdminGroupAdmin,
     AdminGroupPermissionAdmin,
     AdminUserAdmin,
     AdminUserPermissionAdmin,
+    SystemAdminRegistrar,
+    SystemAdminRegistration,
     SystemSettingAdmin,
 )
 from .exports import (
@@ -36,6 +38,8 @@ __all__ = [
     "AdminGroupPermissionAdmin",
     "AdminUserAdmin",
     "AdminUserPermissionAdmin",
+    "SystemAdminRegistrar",
+    "SystemAdminRegistration",
     "SystemSettingAdmin",
     "AdminContentType",
     "AdminGroup",
