@@ -12,6 +12,7 @@ Email: timurkady@yandex.com
 from __future__ import annotations
 
 from copy import deepcopy
+from importlib.util import find_spec
 from typing import Any, Dict
 
 from freeadmin.contrib.adapters.tortoise.adapter import (
@@ -19,9 +20,11 @@ from freeadmin.contrib.adapters.tortoise.adapter import (
 )
 from freeadmin.core.orm import ORMConfig, ORMLifecycle
 
+# Import specification for Aerich if available in the environment.
+_aerich_spec = find_spec("aerich")
 
+# Name of the FreeAdmin adapter powering the example ORM layer.
 DB_ADAPTER = "tortoise"
-"""Name of the FreeAdmin adapter powering the example ORM layer."""
 
 ADMIN_APP_MODULES: tuple[str, ...] = tuple(
     [
