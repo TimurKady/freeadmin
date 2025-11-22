@@ -276,26 +276,61 @@ class BootHarness:
     async def run(self, packages: list[str]) -> tuple[Any, list[Any]]:
         """Execute boot and startup hooks, returning the admin site and menu."""
 
-        runtime_module = sys.modules.get("freeadmin.core.runtime.hub") or runtime_hub_module
-        if not isinstance(runtime_module, types.ModuleType):
-            runtime_module = import_module("freeadmin.core.runtime.hub")
-        elif not hasattr(runtime_module, "hub"):
-            runtime_module = import_module("freeadmin.core.runtime.hub")
+        previous_runtime_module = sys.modules.pop("freeadmin.core.runtime.hub", None)
+        runtime_module = import_module("freeadmin.core.runtime.hub")
         sys.modules["freeadmin.core.runtime.hub"] = runtime_module
         runtime_package = sys.modules.get("freeadmin.core.runtime")
-        if runtime_package is not None:
-            runtime_package.hub = runtime_module
-            runtime_package.admin_site = getattr(runtime_module, "admin_site", None)
+        if runtime_package is None:
+            runtime_package = import_module("freeadmin.core.runtime")
         original_hub = getattr(runtime_module, "hub", None)
         original_admin_site = getattr(runtime_module, "admin_site", None)
-        runtime_module.hub = None
-        runtime_module.admin_site = None
+        original_runtime_hub = (
+            getattr(runtime_package, "hub", None) if runtime_package is not None else None
+        )
+        original_runtime_admin_site = (
+            getattr(runtime_package, "admin_site", None)
+            if runtime_package is not None
+            else None
+        )
         boot = BootManager(adapter_name=self.adapter_name)
         app = FastAPI()
+        from freeadmin.core.runtime.hub import AdminHub
+
+        runtime_module.hub = AdminHub(adapter=boot.adapter, boot_manager=boot)
+        runtime_module.admin_site = runtime_module.hub.admin_site
+        sys.modules["freeadmin.core.runtime.hub"] = runtime_module
+        if runtime_package is not None:
+            runtime_package.hub = runtime_module.hub
+            runtime_package.admin_site = runtime_module.admin_site
+
+        def _ensure_hub(self: BootManager) -> "AdminHub":
+            existing_hub = runtime_module.hub
+            if existing_hub is not None:
+                existing_adapter = existing_hub.admin_site.adapter
+                if self._adapter is None:
+                    self._adapter = existing_adapter
+                elif existing_adapter is not self._adapter:
+                    raise RuntimeError(
+                        "Admin hub already initialized with a different adapter"
+                    )
+                self._hub = existing_hub
+            else:
+                self._hub = AdminHub(adapter=self.adapter)
+                runtime_module.hub = self._hub
+                runtime_module.admin_site = self._hub.admin_site
+                if runtime_package is not None:
+                    runtime_package.hub = runtime_module.hub
+                    runtime_package.admin_site = runtime_module.admin_site
+            return self._hub
+
+        boot._ensure_hub = _ensure_hub.__get__(boot, BootManager)
         try:
             boot.init(app, packages=packages)
             await app.router.startup()
             site = runtime_module.admin_site
+            if runtime_package is not None:
+                runtime_package.hub = runtime_module.hub
+                runtime_package.admin_site = runtime_module.admin_site
             menu = site.menu_builder.build_main_menu(locale="en")
             await app.router.shutdown()
             boot.reset()
@@ -303,6 +338,13 @@ class BootHarness:
         finally:
             runtime_module.hub = original_hub
             runtime_module.admin_site = original_admin_site
+            if previous_runtime_module is not None:
+                sys.modules["freeadmin.core.runtime.hub"] = previous_runtime_module
+            else:
+                sys.modules.pop("freeadmin.core.runtime.hub", None)
+            if runtime_package is not None:
+                runtime_package.hub = original_runtime_hub
+                runtime_package.admin_site = original_runtime_admin_site
 
 
 @pytest.fixture(autouse=True)
