@@ -12,12 +12,15 @@ Email: timurkady@yandex.com
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, TYPE_CHECKING
 
 from freeadmin.core.interface.models import ModelAdmin
 from freeadmin.contrib.widgets import Select2Widget
 
 from .exports import SystemAdapterExports
+
+if TYPE_CHECKING:  # pragma: no cover - import for typing only
+    from freeadmin.core.boot import BootManager
 
 
 @dataclass
@@ -45,10 +48,16 @@ class SystemAdminRegistration:
 class SystemAdminRegistrar:
     """Register adapter-aware system admins against an admin site."""
 
-    def __init__(self, exports: SystemAdapterExports | None = None) -> None:
+    def __init__(
+        self,
+        exports: SystemAdapterExports | None = None,
+        boot_manager: "BootManager | None" = None,
+    ) -> None:
         """Store adapter exports used to resolve models for admin classes."""
 
-        self._exports = exports or SystemAdapterExports()
+        self._exports = exports or SystemAdapterExports(boot_manager)
+        if boot_manager is not None:
+            self._exports.boot_manager = boot_manager
 
     @property
     def exports(self) -> SystemAdapterExports:

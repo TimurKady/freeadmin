@@ -228,7 +228,9 @@ class BootManager:
         if self._system_app is None:
             from ...contrib.apps.system.apps import SystemAppConfig
 
-            self._system_app = SystemAppConfig()
+            self._system_app = SystemAppConfig(self)
+        else:
+            self._system_app.boot_manager = self
         return self._system_app
 
     def reset(self) -> None:
