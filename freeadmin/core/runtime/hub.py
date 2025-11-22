@@ -46,6 +46,8 @@ class AdminHub:
         self.admin_site = AdminSite(
             boot_admin.adapter, title=site_title, settings=self._settings
         )
+        self._system_app = self._load_system_app()
+        self._system_app_ready = False
         self.discovery = DiscoveryService()
         self._app_configs: Dict[str, AppConfig] = {}
         self._started_configs: Set[str] = set()
@@ -106,6 +108,7 @@ class AdminHub:
         """Return the cached admin router wrapper for mounting."""
 
         if self._router is None:
+            self._ensure_system_app_ready()
             self._router = AdminRouter(self.admin_site, settings=self._settings)
         return self._router
 
@@ -120,6 +123,21 @@ class AdminHub:
         if callable(invalidate):
             invalidate()
         self._router = None
+
+    def _load_system_app(self):
+        """Instantiate the built-in system app configuration."""
+
+        from ...contrib.apps.system.apps import SystemAppConfig
+
+        return SystemAppConfig()
+
+    def _ensure_system_app_ready(self) -> None:
+        """Load and register the system application once before mounting."""
+
+        if self._system_app_ready:
+            return
+        self._system_app.ready(self.admin_site)
+        self._system_app_ready = True
 
 
 hub = AdminHub()
