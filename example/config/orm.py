@@ -23,8 +23,12 @@ from freeadmin.core.orm import ORMConfig, ORMLifecycle
 DB_ADAPTER = "tortoise"
 """Name of the FreeAdmin adapter powering the example ORM layer."""
 
-ADMIN_APP_MODULES: tuple[str, ...] = tuple(TortoiseAdapter.model_modules)
-"""Adapter-provided admin model modules bundled with FreeAdmin."""
+ADMIN_APP_MODULES: tuple[str, ...] = tuple(
+    [
+        *TortoiseAdapter.model_modules,
+        *(["aerich.models"] if _aerich_spec is not None else []),
+    ]
+)
 
 MODELS_APP_MODULES: tuple[str, ...] = (
     "example.apps.demo.models",
