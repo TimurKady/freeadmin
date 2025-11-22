@@ -114,11 +114,11 @@ DB_ADAPTER = "tortoise"
 APPLICATION_MODEL_MODULES: tuple[str, ...] = (
     "apps.blog.models",
 )
-SYSTEM_MODEL_MODULES: tuple[str, ...] = (
-    "freeadmin.contrib.apps.system.models",
+ADMIN_MODEL_MODULES: tuple[str, ...] = (
+    *TortoiseAdapter.model_modules,
+    "aerich.models",
 )
-# Include adapter-provided admin models to enable the FreeAdmin UI resources.
-ADMIN_MODEL_MODULES: tuple[str, ...] = tuple(TortoiseAdapter.model_modules)
+# Include adapter-provided admin models and migrations to enable the FreeAdmin UI resources.
 
 ORM_CONFIG: Dict[str, Dict[str, Any]] = {
     "connections": {
@@ -127,10 +127,6 @@ ORM_CONFIG: Dict[str, Dict[str, Any]] = {
     "apps": {
         "models": {
             "models": list(APPLICATION_MODEL_MODULES),
-            "default_connection": "default",
-        },
-        "system": {
-            "models": list(SYSTEM_MODEL_MODULES),
             "default_connection": "default",
         },
         "admin": {
@@ -304,8 +300,59 @@ export FA_DATABASE_URL="sqlite:///./db.sqlite3"
 
 For PostgreSQL use a DSN such as `postgres://user:password@localhost:5432/mydb`.
 
+## Step 10. Make migrations
 
-## Step 10. Create an admin user
+First enter to container
+
+```bash
+docker compose exec <container_name> bash
+```
+
+After
+
+```bash
+aerich init -t <myproject>.config.orm.ORM_CONFIG
+```
+
+Create the initial migration structure
+
+```bash
+aerich init-db
+```
+
+> **Note:** Aerich can be re-run safely even if the `migrations` folders already contain
+> generated files. The command detects existing schema state and skips recreating the
+> project structure instead of raising `FileExistsError`, so no additional compatibility
+> hooks are required.
+
+After changing models
+
+```bash
+aerich migrate
+aerich upgrade
+```
+
+If aerich is not found, try
+
+```bash
+poetry run aerich migrate
+
+or
+
+python -m aerich migrate
+```
+
+Dedicated Aerich apps exist for the admin interface and the logging database. Initialize them once per environment (and re-run migrations when schemas change) via:
+
+```bash
+aerich --app admin init-db
+aerich --app admin upgrade
+
+aerich --app logger init-db
+aerich --app logger upgrade
+```
+
+## Step 11. Create an admin user
 
 The CLI can create superusers for the bundled authentication models. Make sure the required tables already exist (for example by running your migrations or calling `Tortoise.generate_schemas()` after initialising the ORM) before executing the command:
 
@@ -326,7 +373,10 @@ from tortoise import Tortoise
 async def prepare() -> None:
     await Tortoise.init(
         db_url="sqlite:///./db.sqlite3",
-        modules={"models": ["apps.blog.models", "freeadmin.contrib.apps.system.models"]},
+        modules={
+            "models": ["apps.blog.models"],
+            "admin": ["freeadmin.contrib.adapters.tortoise.users"],
+        },
     )
     await Tortoise.generate_schemas()
 
@@ -334,11 +384,12 @@ async def prepare() -> None:
 asyncio.run(prepare())
 ```
 
-`freeadmin.contrib.apps.system.models` ships with the adapter and exposes the system tables (including authentication models)
-required by the admin interface.
+FreeAdmin registers its Tortoise admin models under the `admin` app label. Point `modules["admin"]` at the adapter's model
+modules (for example `freeadmin.contrib.adapters.tortoise.users`) instead of your primary app to avoid Tortoise warnings about
+empty modules during initialisation.
 
 
-## Step 11. Run the development server
+## Step 12. Run the development server
 
 Use Uvicorn (or your ASGI server of choice) to run the FastAPI application:
 
@@ -351,7 +402,7 @@ Visit `http://127.0.0.1:8000/admin` (or the prefix you configured) and sign in w
 > **Heads up:** FreeAdmin boots even when your database has no migrations. Public routes and any custom FastAPI routers remain available, but visiting the admin will redirect you to a setup notice that explains the missing schema. Use the migration or schema generation workflow for your adapter to unlock the full interface.
 
 
-## Step 12. Troubleshooting tips
+## Step 13. Troubleshooting tips
 
 * **CLI cannot find `apps/`:** run the command from the project root where the scaffold created the folder.
 * **Models not discovered:** ensure the module path (e.g. `apps.blog.models`) is listed in `modules["models"]` when initialising Tortoise.
