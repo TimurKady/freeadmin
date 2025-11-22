@@ -122,7 +122,13 @@ class AdminHub:
         if callable(invalidate):
             invalidate()
         self._router = None
+        
+    def _load_system_app(self):
+        """Instantiate the built-in system app configuration."""
 
+        from ...contrib.apps.system.apps import SystemAppConfig
+
+        return SystemAppConfig()
 
 hub = AdminHub()
 admin_site = hub.admin_site
