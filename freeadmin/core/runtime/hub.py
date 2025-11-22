@@ -12,7 +12,7 @@ Email: timurkady@yandex.com
 from __future__ import annotations
 
 import logging
-from typing import Dict, Iterable, List, Optional, Set
+from typing import Dict, Iterable, List, Optional, Set, TYPE_CHECKING
 
 from fastapi import FastAPI
 
@@ -21,11 +21,15 @@ from ..configuration.conf import (
     current_settings,
     register_settings_observer,
 )
+from ...contrib.adapters import BaseAdapter
 from ..interface.app import AppConfig
 from ..interface.site import AdminSite
 from ..interface.discovery import DiscoveryService
 from ..network.router import AdminRouter
 from freeadmin.core.boot import admin as boot_admin
+
+if TYPE_CHECKING:  # pragma: no cover
+    from freeadmin.core.boot.manager import BootManager
 
 
 class AdminHub:
@@ -38,19 +42,33 @@ class AdminHub:
         title: str | None = None,
         *,
         settings: FreeAdminSettings | None = None,
+        adapter: BaseAdapter | None = None,
+        boot_manager: "BootManager | None" = None,
     ) -> None:
-        """Initialize the admin site and supporting discovery service."""
+        """Initialize the admin site using the provided adapter."""
 
         self._settings = settings or current_settings()
         site_title = title or self._settings.admin_site_title
+        selected_adapter = self._select_adapter(adapter=adapter, boot_manager=boot_manager)
         self.admin_site = AdminSite(
-            boot_admin.adapter, title=site_title, settings=self._settings
+            selected_adapter, title=site_title, settings=self._settings
         )
         self.discovery = DiscoveryService()
         self._app_configs: Dict[str, AppConfig] = {}
         self._started_configs: Set[str] = set()
         self._router: AdminRouter | None = None
         register_settings_observer(self._handle_settings_update)
+
+    def _select_adapter(
+        self, *, adapter: BaseAdapter | None, boot_manager: "BootManager | None"
+    ) -> BaseAdapter:
+        """Choose the adapter from explicit input, boot manager, or default."""
+
+        if boot_manager is not None:
+            return boot_manager.adapter
+        if adapter is not None:
+            return adapter
+        return boot_admin.adapter
 
     def autodiscover(self, packages: Iterable[str]) -> List[AppConfig]:
         """Discover application resources within ``packages``."""
