@@ -203,9 +203,23 @@ class BootManager:
         """Return the cached admin hub instance, importing on first access."""
 
         if self._hub is None:
-            from ..runtime.hub import hub as admin_hub
+            import freeadmin.core.runtime.hub as runtime_hub
+            from ..runtime.hub import AdminHub
 
-            self._hub = admin_hub
+            existing_hub = runtime_hub.hub
+            if existing_hub is not None:
+                existing_adapter = existing_hub.admin_site.adapter
+                if self._adapter is None:
+                    self._adapter = existing_adapter
+                elif existing_adapter is not self._adapter:
+                    raise RuntimeError(
+                        "Admin hub already initialized with a different adapter"
+                    )
+                self._hub = existing_hub
+            else:
+                self._hub = AdminHub(adapter=self.adapter)
+                runtime_hub.hub = self._hub
+                runtime_hub.admin_site = self._hub.admin_site
         return self._hub
 
     def _ensure_system_app(self) -> "SystemAppConfig":
