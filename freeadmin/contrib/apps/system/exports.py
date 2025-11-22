@@ -22,6 +22,18 @@ class SystemAdapterExports:
         self._boot = boot_manager or boot_admin
 
     @property
+    def boot_manager(self) -> BootManager:
+        """Return the boot manager powering these exports."""
+
+        return self._boot
+
+    @boot_manager.setter
+    def boot_manager(self, boot_manager: BootManager) -> None:
+        """Update the boot manager backing adapter-bound attributes."""
+
+        self._boot = boot_manager
+
+    @property
     def adapter(self):
         """Return the active adapter powering the system application."""
 

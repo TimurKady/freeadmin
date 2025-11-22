@@ -17,6 +17,7 @@ from .urls import SystemURLRegistrar
 
 if TYPE_CHECKING:  # pragma: no cover - import for typing only
     from freeadmin.core.interface.site import AdminSite
+    from freeadmin.core.boot import BootManager
 
 
 class SystemAppConfig:
@@ -26,9 +27,10 @@ class SystemAppConfig:
     label: ClassVar[str] = "system"
     verbose_name: ClassVar[str] = "System Administration"
 
-    def __init__(self) -> None:
+    def __init__(self, boot_manager: "BootManager | None" = None) -> None:
         """Initialize registrars required by the system application."""
 
+        self._boot_manager = boot_manager
         self._urls = SystemURLRegistrar()
 
     @property
@@ -37,12 +39,24 @@ class SystemAppConfig:
 
         return self._urls
 
+    @property
+    def boot_manager(self) -> "BootManager | None":
+        """Return the boot manager associated with this app config."""
+
+        return self._boot_manager
+
+    @boot_manager.setter
+    def boot_manager(self, boot_manager: "BootManager | None") -> None:
+        """Update the boot manager associated with this app config."""
+
+        self._boot_manager = boot_manager
+
     def ready(self, site: "AdminSite") -> None:
         """Register built-in model admins and URLs against ``site``."""
 
         from .admins import SystemAdminRegistrar
 
-        SystemAdminRegistrar().register(site)
+        SystemAdminRegistrar(boot_manager=self._boot_manager).register(site)
         self._urls.register(site)
 
 
