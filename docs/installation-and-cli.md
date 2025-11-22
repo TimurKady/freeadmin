@@ -372,7 +372,7 @@ async def prepare() -> None:
     await Tortoise.init(
         db_url="sqlite:///./db.sqlite3",
         modules={
-            "admin": ["freeadmin.contrib.adapters.tortoise.users"],
+            "admin": list(TortoiseAdapter.model_modules),
             "models": ["apps.blog.models"],
         },
     )
