@@ -24,8 +24,8 @@ from freeadmin.core.network.router import AdminRouter
 from freeadmin.core.interface.permissions import permission_checker
 from freeadmin.core.interface.services.permissions import PermAction
 from freeadmin.core.interface.auth import admin_auth_service
+from freeadmin.contrib.apps.system.apps import SystemAppConfig
 from tests.system_models import system_models
-import freeadmin.contrib.apps.system.admin  # ensure registration
 
 
 class TestSettingsExport:
@@ -47,6 +47,7 @@ class TestSettingsExport:
             )
         )
         asyncio.run(Tortoise.generate_schemas())
+        SystemAppConfig().ready(admin_site)
         asyncio.run(admin_site.finalize())
 
         cls._orig_perm = permission_checker.require_view
