@@ -29,7 +29,10 @@ own adapter by creating an instance that implements the adapter protocol and
 registering it with ``freeadmin.contrib.adapters.registry`` before referencing the name
 with ``admin.init``. Existing adapter instances should be registered with the
 registry rather than passed directly to ``BootManager.init`` so they can be
-reused across the runtime.
+reused across the runtime. Access the active adapter through the
+``BootManager.adapter`` property (or ``runtime_hub.admin_site.adapter``) so that
+custom adapters selected at boot are propagated consistently across discovery,
+registration, and finalisation.
 
 ## BootManager responsibilities
 

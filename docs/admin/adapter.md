@@ -35,17 +35,24 @@ The admin panel interacts with the database exclusively through an adapter objec
 This adapter encapsulates ORM-specific operations behind a shared interface, letting you swap Tortoise, SQLAlchemy, or any other ORM without touching the rest of the admin code.
 
 ### Loading an Adapter
-An adapter instance is registered at startup (see boot_admin usage in admin modules).
-When the admin panel boots, it imports the desired adapter and exposes it via boot_admin.adapter.
-All database calls route through this object.
+The recommended entry point for adapter access is the :class:`~freeadmin.core.boot.BootManager`
+instance coordinating your application boot. Each boot manager exposes its active adapter via
+``boot_manager.adapter`` and propagates that adapter into the runtime hub (``runtime_hub.admin_site.adapter``).
+This keeps discovery, registration, and finalisation aligned with the adapter selected for the
+current application instance—especially when custom adapters coexist alongside the bundled
+defaults.
 
 ```python
-from freeadmin.core.boot import admin as boot_admin
+from freeadmin.core.boot import BootManager
 
-adapter = boot_admin.adapter
+boot = BootManager(adapter_name="my_adapter")
+adapter = boot.adapter
 ```
 
-Each adapter must provide the same set of methods, outlined below.
+Avoid importing ``boot_admin`` directly when working with alternative adapters. The ``boot_admin``
+singleton exists for backwards compatibility and always targets the default adapter; relying on
+it will bypass any adapter registered on a custom ``BootManager``. Each adapter must provide the
+same set of methods, outlined below.
 
 ### Required Interface
 
