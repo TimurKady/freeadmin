@@ -11,6 +11,7 @@ Email: timurkady@yandex.com
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Mapping
 
 from fastapi import Request
@@ -25,6 +26,7 @@ from freeadmin.core.configuration.conf import current_settings
 class TemplateRenderer:
     """Provide cached access to FreeAdmin templates for public pages."""
 
+    logger = logging.getLogger(__name__)
     _service: TemplateService | None = template_service_module.DEFAULT_TEMPLATE_SERVICE
 
     @classmethod
@@ -61,11 +63,21 @@ class TemplateRenderer:
         if "request" not in final_context:
             raise ValueError("Template context must include a 'request' key.")
         templates = cls.get_service().get_templates()
+        if cls.logger.isEnabledFor(logging.INFO):
+            cls.logger.info(
+                "Rendering template response",
+                extra={
+                    "template": template_name,
+                    "path": str(getattr(getattr(request, "url", None), "path", "")),
+                },
+            )
         return templates.TemplateResponse(template_name, final_context)
 
 
 class PageTemplateResponder:
     """Render FreeAdmin page templates with standardised context defaults."""
+
+    logger = logging.getLogger(__name__)
 
     @classmethod
     def render(
@@ -89,6 +101,16 @@ class PageTemplateResponder:
         for key, value in defaults.items():
             payload.setdefault(key, value)
 
+        if cls.logger.isEnabledFor(logging.DEBUG):
+            cls.logger.debug(
+                "Page template responder merged context",
+                extra={
+                    "template": template_name,
+                    "title": title,
+                    "path": str(request.url.path),
+                    "context_keys": sorted(payload.keys()),
+                },
+            )
         return TemplateRenderer.render(template_name, payload, request=request)
 
     @classmethod

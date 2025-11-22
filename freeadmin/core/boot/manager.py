@@ -233,9 +233,26 @@ class BootManager:
 
         @app.on_event("startup")
         async def _load_system_config() -> None:
+            if self.logger.isEnabledFor(logging.INFO):
+                self.logger.info(
+                    "Admin startup event received", extra={"adapter": self._adapter_name}
+                )
             self._ensure_config()
+            if self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(
+                    "Ensuring system configuration seed",
+                    extra={"settings_module": getattr(self._config, "__module__", None)},
+                )
             await self._config.ensure_seed()
+            if self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(
+                    "Reloading system configuration cache", extra={"adapter": self._adapter_name}
+                )
             await self._config.reload()
+            if self.logger.isEnabledFor(logging.INFO):
+                self.logger.info(
+                    "Admin startup complete", extra={"adapter": self._adapter_name}
+                )
 
 
     def register_shutdown(self, app: FastAPI) -> None:
@@ -243,8 +260,16 @@ class BootManager:
 
         @app.on_event("shutdown")
         async def _stop_card_publishers() -> None:
+            if self.logger.isEnabledFor(logging.INFO):
+                self.logger.info(
+                    "Admin shutdown initiated", extra={"adapter": self._adapter_name}
+                )
             hub_ref = self._ensure_hub()
             await hub_ref.admin_site.cards.shutdown_publishers()
+            if self.logger.isEnabledFor(logging.INFO):
+                self.logger.info(
+                    "Admin shutdown complete", extra={"adapter": self._adapter_name}
+                )
 
     def _find_adapter(self, name: str) -> BaseAdapter:
         """Discover and return an adapter instance by ``name``."""
@@ -254,6 +279,14 @@ class BootManager:
             if ispkg:
                 import_module(f"{package.__name__}.{modname}.adapter")
         return registry.get(name)
+
+    @property
+    def _adapter_name(self) -> str | None:
+        """Return the resolved adapter name for lifecycle logging."""
+
+        if self._adapter is not None:
+            return getattr(self._adapter, "name", None)
+        return self._default_adapter_name
 
     def _register_model_modules(self) -> None:
         """Import adapter-provided model modules once."""

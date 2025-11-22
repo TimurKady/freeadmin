@@ -11,6 +11,7 @@ Email: timurkady@yandex.com
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict, List, Tuple, TYPE_CHECKING
 
 from fastapi import Request
@@ -27,6 +28,7 @@ class SidebarBuilder:
 
     KIND_APPS = "apps"
     KIND_VIEWS = "views"
+    logger = logging.getLogger(__name__)
 
     @classmethod
     def collect(cls, admin_site: "AdminSite", kind: str, settings: bool) -> List[Tuple[str, List[Dict[str, Any]]]]:
@@ -69,6 +71,20 @@ class SidebarBuilder:
         is_views_section = resolution.section_mode == "views"
         include_apps = not is_views_section
 
+        if cls.logger.isEnabledFor(logging.DEBUG):
+            cls.logger.debug(
+                "Sidebar build starting",
+                extra={
+                    "path": str(request.url.path),
+                    "settings_mode": settings_mode,
+                    "app_label": app_label,
+                    "model_name": model_name,
+                    "resolution_mode": resolution.section_mode,
+                    "normalized_path": normalized_path,
+                    "admin_prefix": admin_prefix,
+                },
+            )
+
         raw_apps = (
             cls.collect(admin_site, cls.KIND_APPS, settings_mode) if include_apps else []
         )
@@ -94,6 +110,17 @@ class SidebarBuilder:
             models.sort(key=lambda item: item["display_name"].lower())
             combined_items.append((label, models))
         combined_items.sort(key=lambda item: item[0].lower())
+
+        if cls.logger.isEnabledFor(logging.DEBUG):
+            cls.logger.debug(
+                "Sidebar grouping complete",
+                extra={
+                    "groups": len(combined_items),
+                    "entries": sum(len(group[1]) for group in combined_items),
+                    "include_apps": include_apps,
+                    "view_groups": len(view_groups),
+                },
+            )
 
         return [
             {
