@@ -78,6 +78,19 @@ class FieldSerializer:
                     ]
                 except Exception:
                     pass
+            iterable: Any | None = None
+            try:
+                if hasattr(value, "__iter__") and not isinstance(value, (str, bytes)):
+                    iterable = list(value)
+            except Exception:
+                iterable = None
+            if iterable is not None:
+                return [
+                    self._serialize(getattr(obj, "id", obj))
+                    for obj in iterable
+                ]
+            if getattr(value, "__class__", object).__name__ == "QuerySet":
+                return []
         if hasattr(value, "id"):
             return getattr(value, "id")
         if hasattr(value, "dict"):
