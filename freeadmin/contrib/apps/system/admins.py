@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import Iterable, TYPE_CHECKING
 
 from freeadmin.core.interface.models import ModelAdmin
+from freeadmin.core.interface.settings import system_config
 from freeadmin.contrib.widgets import Select2Widget
 
 from .exports import SystemAdapterExports
@@ -168,6 +169,20 @@ class SystemSettingAdmin(ModelAdmin):
         """Meta options for :class:`SystemSettingAdmin`."""
 
         pass
+
+    async def create(self, request, user, md, payload):
+        """Create a system setting and refresh the cached configuration."""
+
+        obj = await super().create(request, user, md, payload)
+        await system_config.reload()
+        return obj
+
+    async def update(self, request, user, md, obj, payload):
+        """Update a system setting and refresh the cached configuration."""
+
+        updated_obj = await super().update(request, user, md, obj, payload)
+        await system_config.reload()
+        return updated_obj
 
 
 __all__ = [
