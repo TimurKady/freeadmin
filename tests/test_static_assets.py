@@ -7,7 +7,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from starlette.requests import Request
 
-from freeadmin.core.configuration.conf import current_settings
+from freeadmin.config import current_settings
 from freeadmin.core.interface.base import BaseModelAdmin
 
 

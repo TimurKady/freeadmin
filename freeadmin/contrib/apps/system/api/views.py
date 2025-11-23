@@ -18,7 +18,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Request
 
 from freeadmin.contrib.adapters import BaseAdapter
 from freeadmin.core.boot import admin as boot_admin
-from freeadmin.core.configuration.conf import (
+from freeadmin.config import (
     FreeAdminSettings,
     current_settings,
     register_settings_observer,

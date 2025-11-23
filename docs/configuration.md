@@ -37,10 +37,10 @@ Set these variables before your process starts (for example in a `.env` file, Do
 
 ## Programmatic configuration
 
-Call `freeadmin.core.configuration.conf.configure()` to install a custom `FreeAdminSettings` instance before the boot manager is created. This is useful when you want to load settings from another source or override a small subset of values without touching environment variables.
+Call `freeadmin.config.configure()` to install a custom `FreeAdminSettings` instance before the boot manager is created. This is useful when you want to load settings from another source or override a small subset of values without touching environment variables.
 
 ```python
-from freeadmin.core.configuration.conf import FreeAdminSettings, configure
+from freeadmin.config import FreeAdminSettings, configure
 
 settings = FreeAdminSettings(
     secret_key="super-secret",

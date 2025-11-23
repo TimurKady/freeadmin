@@ -20,7 +20,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from typing import Iterable, TYPE_CHECKING
 
 from ...contrib.adapters import BaseAdapter, registry
-from freeadmin.core.configuration.conf import (
+from freeadmin.config import (
     FreeAdminSettings,
     current_settings,
     register_settings_observer,

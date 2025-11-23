@@ -18,7 +18,7 @@ from typing import Any, Protocol, runtime_checkable
 from fastapi import FastAPI
 
 from freeadmin.core.boot import BootManager
-from ..orm import ORMConfig, ORMLifecycle
+from freeadmin.core.orm import ORMConfig, ORMLifecycle
 
 LifecycleHook = Callable[[], Awaitable[None] | None]
 
@@ -132,8 +132,8 @@ class ApplicationFactory:
         """Delegate route mounting to the configured router manager if present."""
 
         if self._router_manager is None:
-            from ..runtime.hub import admin_site
-            from ..network.router import AdminRouter
+            from freeadmin.core.runtime.hub import admin_site
+            from freeadmin.core.network_router import AdminRouter
 
             self._router_manager = AdminRouter(admin_site)
         mount = getattr(self._router_manager, "mount", None)
@@ -152,7 +152,7 @@ class ApplicationFactory:
         ):
             mount(app)
             return
-        from ..runtime.hub import admin_site
+        from freeadmin.core.runtime.hub import admin_site
 
         mount(app, admin_site)
 

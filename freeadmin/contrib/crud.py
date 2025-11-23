@@ -16,6 +16,9 @@ from typing import Any, Awaitable, Callable, Literal, TYPE_CHECKING
 
 import mimetypes
 import re
+import sys
+import types
+import warnings
 from fastapi import APIRouter, Body, Depends, Request, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -24,16 +27,16 @@ from starlette.routing import NoMatchFound
 
 from importlib import import_module
 
-from ...core.configuration.conf import current_settings
-from ...core.interface.services.auth import AdminUserDTO
-from ...core.interface.auth import admin_auth_service
-from ...core.interface.base import BaseModelAdmin
-from ...core.interface.permissions import permission_checker
-from ...core.interface.services import PermAction, ScopeTokenService
-from ...core.interface.services.admin import AdminService
-from ...core.interface.services.export import ExportService
-from ...core.interface.exceptions import HTTPError
-from ...core.interface.settings import SettingsKey, system_config
+from freeadmin.config import current_settings
+from freeadmin.core.interface.services.auth import AdminUserDTO
+from freeadmin.core.interface.auth import admin_auth_service
+from freeadmin.core.interface.base import BaseModelAdmin
+from freeadmin.core.interface.permissions import permission_checker
+from freeadmin.core.interface.services import PermAction, ScopeTokenService
+from freeadmin.core.interface.services.admin import AdminService
+from freeadmin.core.interface.services.export import ExportService
+from freeadmin.core.interface.exceptions import HTTPError
+from freeadmin.core.interface.settings import SettingsKey, system_config
 
 ImportService = import_module(
     "freeadmin.core.interface.services.import"
@@ -41,7 +44,7 @@ ImportService = import_module(
 
 
 if TYPE_CHECKING:
-    from ...core.interface.site import AdminSite
+    from freeadmin.admin import AdminSite
 
 
 MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MB
@@ -115,7 +118,7 @@ class CrudRouterBuilder:
 
         adapter = getattr(admin_site, "adapter", None)
         if adapter is None:
-            from ...core.boot import admin as boot_admin  # pragma: no cover
+            from freeadmin.core.boot import admin as boot_admin  # pragma: no cover
             adapter = boot_admin.adapter
         admin = admin_cls(admin_cls.model, adapter)
         setattr(admin, "app_label", app_label)
@@ -558,6 +561,27 @@ class CrudRouterBuilder:
                 raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
         return router
+
+
+class _LegacyOperationsModule(types.ModuleType):
+    """Shim module emitting a deprecation warning on attribute access."""
+
+    _warned = False
+
+    def __getattribute__(self, name: str):
+        if name not in {"_warned", "__dict__"} and not object.__getattribute__(self, "_warned"):
+            warnings.warn(
+                "freeadmin.contrib.crud.operations is deprecated; import from freeadmin.contrib.crud instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            object.__setattr__(self, "_warned", True)
+        return super().__getattribute__(name)
+
+
+_legacy_operations = _LegacyOperationsModule(__name__ + ".operations")
+_legacy_operations.CrudRouterBuilder = CrudRouterBuilder
+sys.modules[__name__ + ".operations"] = _legacy_operations
 
 # The End
 

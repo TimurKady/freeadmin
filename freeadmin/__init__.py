@@ -8,11 +8,11 @@ Author: Timur Kady
 Email: timurkady@yandex.com
 """
 
-from .core.application import ApplicationFactory
-from .core.configuration.conf import FreeAdminSettings, configure, current_settings
+from .application import ApplicationFactory
+from freeadmin.config import FreeAdminSettings, configure, current_settings
 from .core.interface.base import BaseModelAdmin
-from .core.interface.site import AdminSite
-from .core.network.router import AdminRouter
+from freeadmin.admin import AdminSite
+from freeadmin.core.network_router import AdminRouter
 from .meta import __version__
 
 # The End

@@ -16,7 +16,7 @@ from pathlib import PurePath, PurePosixPath
 from typing import Any, Dict
 from urllib.parse import urlparse
 
-from freeadmin.core.configuration.conf import current_settings
+from freeadmin.config import current_settings
 from ...core.interface.settings import SettingsKey, system_config
 
 from .base import BaseWidget

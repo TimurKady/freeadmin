@@ -21,7 +21,7 @@ from freeadmin.core.boot import admin as boot_admin
 from freeadmin.core.interface.site import AdminSite
 from freeadmin.core.interface.templates import TemplateRenderer, TemplateService
 from freeadmin.core.interface.templates import service as template_service_module
-from freeadmin.core.network.router.aggregator import RouterAggregator
+from freeadmin.core.network_router import RouterAggregator
 from tests.conftest import admin_state
 
 

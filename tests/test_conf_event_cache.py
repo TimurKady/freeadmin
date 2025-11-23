@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from freeadmin.core.configuration.conf import FreeAdminSettings
+from freeadmin.config import FreeAdminSettings
 
 
 def test_settings_default_to_in_memory_cache(tmp_path) -> None:

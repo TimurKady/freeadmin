@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 
 from freeadmin.core.boot import admin as boot_admin
 from freeadmin.core.interface.site import AdminSite
-from freeadmin.core.network.router.aggregator import RouterAggregator
+from freeadmin.core.network_router import RouterAggregator
 from tests.conftest import admin_state
 
 

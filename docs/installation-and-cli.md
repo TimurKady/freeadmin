@@ -268,7 +268,7 @@ The default discovery packages (`apps` and `pages`) match the directories create
 from fastapi import APIRouter
 
 from freeadmin.core.runtime.hub import admin_site
-from freeadmin.core.network.router import RouterAggregator
+from freeadmin.core.network_router import RouterAggregator
 
 
 class ProjectRouterAggregator(RouterAggregator):

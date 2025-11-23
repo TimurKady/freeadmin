@@ -20,7 +20,7 @@ from fastapi.testclient import TestClient
 from tortoise import Tortoise
 
 from freeadmin.core.runtime.hub import admin_site
-from freeadmin.core.network.router import AdminRouter
+from freeadmin.core.network_router import AdminRouter
 from freeadmin.core.interface.permissions import permission_checker
 from freeadmin.core.interface.services.permissions import PermAction
 from freeadmin.core.interface.auth import admin_auth_service

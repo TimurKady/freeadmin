@@ -24,7 +24,7 @@ from itsdangerous import BadSignature, URLSafeTimedSerializer
 from ....contrib.adapters import BaseAdapter
 from ....utils.passwords import password_hasher
 from ....utils.icon import IconPathMixin
-from freeadmin.core.configuration.conf import (
+from freeadmin.config import (
     FreeAdminSettings,
     current_settings,
     register_settings_observer,

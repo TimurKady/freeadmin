@@ -17,7 +17,7 @@ skips section landing routes automatically, so the `include_in_sidebar` flag is
 optional when you reuse these defaults:
 
 ```python
-from freeadmin.core.interface.site import AdminSite
+from freeadmin.admin import AdminSite
 from freeadmin.core.interface.settings import SettingsKey, system_config
 
 class BuiltinPagesRegistrar:
@@ -193,7 +193,7 @@ pages:
 
 ```python
 # apps/articles/views/manage.py
-from freeadmin.core.interface.site import AdminSite
+from freeadmin.admin import AdminSite
 
 
 class ArticleAdminViews:

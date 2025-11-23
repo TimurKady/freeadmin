@@ -37,7 +37,7 @@ from ...contrib.adapters import BaseAdapter
 from ...contrib.widgets import registry as widget_registry
 from ...contrib.widgets.context import WidgetContext
 from ...contrib.widgets.base import BaseWidget
-from freeadmin.core.configuration.conf import current_settings
+from freeadmin.config import current_settings
 from .settings import SettingsKey, system_config
 
 if TYPE_CHECKING:  # pragma: no cover

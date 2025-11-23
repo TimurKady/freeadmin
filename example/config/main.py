@@ -11,7 +11,7 @@ Email: timurkady@yandex.com
 
 from __future__ import annotations
 
-from freeadmin.core.application import ApplicationFactory
+from freeadmin.application import ApplicationFactory
 from freeadmin.core.boot import BootManager
 
 from .orm import ExampleORMConfig

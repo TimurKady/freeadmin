@@ -16,7 +16,7 @@ import json
 import logging
 from typing import Any, Dict, Iterator, List, Set
 
-from freeadmin.core.configuration.conf import FreeAdminSettings, current_settings
+from freeadmin.config import FreeAdminSettings, current_settings
 
 from .cache import SQLiteCardCache, SQLiteEventCache
 

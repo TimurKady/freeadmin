@@ -172,7 +172,7 @@ FreeAdmin public pages let you showcase product capabilities to unauthenticated 
 1. **Mount from the project static directory.** Place bespoke CSS or JavaScript inside your application's `static/` folder (for example `static/public/landing.css`). The boot manager mounts this directory together with FreeAdmin's bundled assets, so files become available at the same prefix as the admin.
 2. **Generate URLs through the static route.** Resolve asset URLs inside `get_context` using `request.app.url_path_for` and the active static route name. This guards against custom prefixes and reverse proxies.
    ```python
-   from freeadmin.core.configuration.conf import current_settings
+   from freeadmin.config import current_settings
 
    class MarketingLanding(BaseTemplatePage):
        ...

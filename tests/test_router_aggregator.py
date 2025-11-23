@@ -17,12 +17,12 @@ from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
 from starlette.staticfiles import StaticFiles
 
-from freeadmin.core.network.router import (
+from freeadmin.core.network_router import (
     AdminRouter,
     ExtendedRouterAggregator,
     RouterAggregator,
 )
-from freeadmin.core.configuration.conf import FreeAdminSettings
+from freeadmin.config import FreeAdminSettings
 from freeadmin.core.interface.templates import TemplateService
 
 

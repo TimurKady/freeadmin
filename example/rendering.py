@@ -18,7 +18,7 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from freeadmin.core.configuration.conf import FreeAdminSettings, current_settings
+from freeadmin.config import FreeAdminSettings, current_settings
 
 EXAMPLE_TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 ADMIN_TEMPLATES_DIR = EXAMPLE_TEMPLATES_DIR.parents[1] / "freeadmin" / "templates"

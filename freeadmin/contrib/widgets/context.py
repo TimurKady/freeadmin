@@ -13,7 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional
 
-from ...core.schema.descriptors import ModelDescriptor, FieldDescriptor
+from freeadmin.core.schema_descriptors import ModelDescriptor, FieldDescriptor
 
 if TYPE_CHECKING:  # pragma: no cover - imported for type checking only
     from ...core.interface.base import BaseModelAdmin  # type hints helper

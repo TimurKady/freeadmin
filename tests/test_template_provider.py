@@ -16,7 +16,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from freeadmin.core.configuration.conf import FreeAdminSettings
+from freeadmin.config import FreeAdminSettings
 from freeadmin.core.interface.settings import SettingsKey, system_config
 from freeadmin.core.runtime.provider import TemplateProvider
 

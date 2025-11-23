@@ -234,9 +234,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, FastAPI
 
-from freeadmin.core.interface.site import AdminSite
+from freeadmin.admin import AdminSite
 from freeadmin.core.runtime.hub import admin_site
-from freeadmin.core.network.router import RouterAggregator
+from freeadmin.core.network_router import RouterAggregator
 
 
 class {router_class}(RouterAggregator):

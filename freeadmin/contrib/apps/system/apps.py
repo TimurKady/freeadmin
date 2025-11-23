@@ -16,7 +16,7 @@ from typing import ClassVar, TYPE_CHECKING
 from .urls import SystemURLRegistrar
 
 if TYPE_CHECKING:  # pragma: no cover - import for typing only
-    from freeadmin.core.interface.site import AdminSite
+    from freeadmin.admin import AdminSite
     from freeadmin.core.boot import BootManager
 
 

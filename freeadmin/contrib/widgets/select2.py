@@ -15,7 +15,7 @@ import logging
 from typing import Any, Dict, List, Tuple, Optional
 
 from ...core.interface.settings import SettingsKey, system_config
-from freeadmin.core.configuration.conf import current_settings
+from freeadmin.config import current_settings
 from .base import BaseWidget
 from .mixins import RelationChoicesMixin, RelationPrefetchMixin, RelationValueMixin
 from .registry import registry

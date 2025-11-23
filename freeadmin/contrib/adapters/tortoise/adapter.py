@@ -32,8 +32,11 @@ from tortoise.models import Model as TortoiseModel
 from tortoise.queryset import QuerySet
 from tortoise.transactions import in_transaction  # noqa: F401
 
-from ....core.schema.descriptors import (
-    Choice, FieldDescriptor, ModelDescriptor, Relation
+from freeadmin.core.schema_descriptors import (
+    Choice,
+    FieldDescriptor,
+    ModelDescriptor,
+    Relation,
 )
 from .. import registry
 from ....core.interface.filters import FilterSpec

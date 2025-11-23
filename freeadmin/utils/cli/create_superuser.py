@@ -23,7 +23,7 @@ from freeadmin.core.boot import admin as boot_admin
 from freeadmin.contrib.adapters import BaseAdapter
 from ...core.interface.services.auth import AuthService
 from ...core.interface.settings.config import system_config
-from freeadmin.core.configuration.conf import FreeAdminSettings, current_settings
+from freeadmin.config import FreeAdminSettings, current_settings
 
 
 class SuperuserCreator:

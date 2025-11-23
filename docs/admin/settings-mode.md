@@ -13,7 +13,7 @@ Use `AdminSite.register` with `settings=True` to mount a model under `/settings`
 
 ```python
 from freeadmin.core.interface.models import ModelAdmin
-from freeadmin.core.interface.site import AdminSite
+from freeadmin.admin import AdminSite
 
 class SiteConfigAdmin(ModelAdmin):
     model = SiteConfig

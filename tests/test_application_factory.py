@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 from fastapi import FastAPI
 
-from freeadmin.core.application import ApplicationFactory
+from freeadmin.application import ApplicationFactory
 from freeadmin.core.runtime.hub import admin_site
 
 

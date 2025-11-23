@@ -3,7 +3,7 @@
 `AdminSite.register_user_menu` attaches links to the user dropdown. Each entry requires a title and path and may include a Bootstrap icon class. The method stores the item in the registry so it becomes part of the context used by templates during rendering.
 
 ```python
-from freeadmin.core.interface.site import AdminSite
+from freeadmin.admin import AdminSite
 
 class ExtraUserMenuRegistrar:
     def register(self, site: AdminSite) -> None:

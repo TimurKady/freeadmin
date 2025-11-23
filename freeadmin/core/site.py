@@ -9,7 +9,20 @@ Author: Timur Kady
 Email: timurkady@yandex.com
 """
 
-from .interface.site import *  # noqa: F401,F403
+from __future__ import annotations
+
+import warnings
+
+from freeadmin.admin import AdminSite
+
+warnings.warn(
+    "freeadmin.core.site is deprecated; import AdminSite from freeadmin.admin instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+__all__ = ["AdminSite"]
 
 
 # The End
+

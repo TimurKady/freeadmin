@@ -13,7 +13,7 @@ from uuid import uuid4
 
 import pytest
 
-from freeadmin.core.configuration.conf import FreeAdminSettings
+from freeadmin.config import FreeAdminSettings
 from freeadmin.core.interface.cache.cards import SQLiteCardCache
 from freeadmin.core.interface.site import AdminSite
 

@@ -9,7 +9,7 @@ Author: Timur Kady
 Email: timurkady@yandex.com
 """
 
-from .conf import FreeAdminSettings, configure, current_settings
+from freeadmin.config import FreeAdminSettings, configure, current_settings
 
 __all__ = ["FreeAdminSettings", "configure", "current_settings"]
 

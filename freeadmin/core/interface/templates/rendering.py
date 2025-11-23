@@ -20,7 +20,7 @@ from fastapi.responses import HTMLResponse
 from . import service as template_service_module
 from .service import TemplateService
 from ..settings import SettingsKey, system_config
-from freeadmin.core.configuration.conf import current_settings
+from freeadmin.config import current_settings
 
 
 class TemplateRenderer:

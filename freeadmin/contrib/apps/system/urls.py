@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 from .views import BuiltinPagesRegistrar, BuiltinUserMenuRegistrar
 
 if TYPE_CHECKING:  # pragma: no cover - import for typing only
-    from freeadmin.core.interface.site import AdminSite
+    from freeadmin.admin import AdminSite
 
 
 class SystemURLRegistrar:

@@ -16,16 +16,12 @@ from typing import Dict, Iterable, List, Optional, Set, TYPE_CHECKING
 
 from fastapi import FastAPI
 
-from ..configuration.conf import (
-    FreeAdminSettings,
-    current_settings,
-    register_settings_observer,
-)
-from ...contrib.adapters import BaseAdapter
-from ..interface.app import AppConfig
-from ..interface.site import AdminSite
-from ..interface.discovery import DiscoveryService
-from ..network.router import AdminRouter
+from freeadmin.config import FreeAdminSettings, current_settings, register_settings_observer
+from freeadmin.contrib.adapters import BaseAdapter
+from freeadmin.core.interface.app import AppConfig
+from freeadmin.admin import AdminSite
+from freeadmin.core.interface.discovery import DiscoveryService
+from freeadmin.core.network_router import AdminRouter
 from freeadmin.core.boot import admin as boot_admin
 
 if TYPE_CHECKING:  # pragma: no cover

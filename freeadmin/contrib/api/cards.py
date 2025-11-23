@@ -18,7 +18,7 @@ from typing import Any, AsyncIterator, TYPE_CHECKING
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
-from freeadmin.core.configuration.conf import (
+from freeadmin.config import (
     FreeAdminSettings,
     current_settings,
     register_settings_observer,
@@ -34,7 +34,7 @@ from ...core.interface.services.tokens import ScopeTokenService
 from ...core.interface.cache import SQLiteEventCache
 
 if TYPE_CHECKING:  # pragma: no cover - for type checking only
-    from ...core.interface.site import AdminSite
+    from freeadmin.admin import AdminSite
 
 
 class CardEventStreamer:

@@ -135,7 +135,7 @@ administrative layout while remaining visually independent:
 from fastapi import FastAPI
 
 from freeadmin.core.runtime.hub import admin_site
-from freeadmin.core.network.router import ExtendedRouterAggregator
+from freeadmin.core.network_router import ExtendedRouterAggregator
 
 app = FastAPI()
 aggregator = ExtendedRouterAggregator(site=admin_site)
@@ -164,7 +164,7 @@ Additional routers can still be registered via
 from fastapi import FastAPI
 
 from freeadmin.core.runtime.hub import admin_site
-from freeadmin.core.network.router import ExtendedRouterAggregator
+from freeadmin.core.network_router import ExtendedRouterAggregator
 
 app = FastAPI()
 

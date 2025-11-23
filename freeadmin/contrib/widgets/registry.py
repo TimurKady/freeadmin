@@ -12,7 +12,7 @@ Email: timurkady@yandex.com
 from __future__ import annotations
 from typing import Dict, Type
 
-from ...core.schema.descriptors import FieldDescriptor
+from freeadmin.core.schema_descriptors import FieldDescriptor
 from .base import BaseWidget
 
 

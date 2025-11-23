@@ -13,7 +13,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from ..adapters import BaseAdapter
-from freeadmin.core.configuration.conf import FreeAdminSettings
+from freeadmin.config import FreeAdminSettings
 
 
 class AdminAPI:

@@ -16,7 +16,7 @@ from typing import Any, Dict
 
 import jwt
 
-from freeadmin.core.configuration.conf import FreeAdminSettings, current_settings
+from freeadmin.config import FreeAdminSettings, current_settings
 
 
 class ScopeTokenService:

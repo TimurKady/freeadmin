@@ -203,7 +203,7 @@ Widgets are frontend components referenced from `ModelAdmin.widgets_overrides` o
 
 ## Settings
 
-Global configuration lives inside `freeadmin.core.configuration.conf.FreeAdminSettings`. Instances are normally created with `FreeAdminSettings.from_env()`, which reads environment variables prefixed with `FA_`.
+Global configuration lives inside `freeadmin.config.FreeAdminSettings`. Instances are normally created with `FreeAdminSettings.from_env()`, which reads environment variables prefixed with `FA_`.
 
 Important attributes include:
 
@@ -212,7 +212,7 @@ Important attributes include:
 * `event_cache_path`: storage location for card payload caching.
 * `brand_icon` and `admin_site_title`: values shown in the UI.
 
-To override defaults in code, call `freeadmin.core.configuration.conf.configure(settings_instance)` before initialising the boot manager.
+To override defaults in code, call `freeadmin.config.configure(settings_instance)` before initialising the boot manager.
 
 
 ## Key takeaway
