@@ -48,7 +48,7 @@ class AdminHub:
         """Initialize the admin site using the provided adapter."""
 
         self._settings = settings or current_settings()
-        site_title = title or self._settings.admin_site_title
+        site_title = title if title is not None else None
         selected_adapter = self._select_adapter(adapter=adapter, boot_manager=boot_manager)
         self.admin_site = AdminSite(
             selected_adapter, title=site_title, settings=self._settings
