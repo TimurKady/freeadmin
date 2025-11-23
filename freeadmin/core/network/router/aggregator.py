@@ -39,10 +39,7 @@ class RouterAggregator(RouterFoundation):
 
         super().__init__(settings=settings, template_service=template_service)
         self.site = site
-        default_prefix = system_config.get_cached(
-            SettingsKey.ADMIN_PREFIX, self._settings.admin_path
-        )
-        self._prefix = (prefix or default_prefix).rstrip("/")
+        self._explicit_prefix = prefix.rstrip("/") if prefix else None
         self._admin_router: APIRouter | None = None
         self._mounted_apps: WeakSet[FastAPI] = WeakSet()
         self._additional_routers: list[tuple[APIRouter, str | None]] = list(
@@ -53,7 +50,11 @@ class RouterAggregator(RouterFoundation):
     def prefix(self) -> str:
         """Return the current prefix used for mounting the admin router."""
 
-        return self._prefix
+        if self._explicit_prefix is not None:
+            return self._explicit_prefix
+        return system_config.get_cached(
+            SettingsKey.ADMIN_PREFIX, self._settings.admin_path
+        ).rstrip("/")
 
     def create_admin_router(self) -> APIRouter:
         """Instantiate the FastAPI router for the admin site."""
@@ -75,15 +76,16 @@ class RouterAggregator(RouterFoundation):
     def mount(self, app: FastAPI, prefix: str | None = None) -> None:
         """Mount the admin router and any configured extras onto the app."""
 
-        self._prefix = (prefix or self._prefix).rstrip("/")
+        if prefix is not None:
+            self._explicit_prefix = prefix.rstrip("/")
         self.ensure_site_templates(self.site)
         app.state.admin_site = self.site
         if app in self._mounted_apps:
             return
 
         router = self.get_admin_router()
-        app.include_router(router, prefix=self._prefix)
-        self.mount_static_resources(app, self._prefix)
+        app.include_router(router, prefix=self.prefix)
+        self.mount_static_resources(app, self.prefix)
         self.register_additional_routers(app)
         self._mounted_apps.add(app)
 
@@ -183,7 +185,8 @@ class ExtendedRouterAggregator(RouterAggregator):
     def mount(self, app: FastAPI, prefix: str | None = None) -> None:
         """Mount public and admin routers onto ``app`` respecting order."""
 
-        self._prefix = (prefix or self._prefix).rstrip("/")
+        if prefix is not None:
+            self._explicit_prefix = prefix.rstrip("/")
         self.ensure_site_templates(self.site)
         app.state.admin_site = self.site
         if app in self._mounted_apps:
@@ -191,7 +194,7 @@ class ExtendedRouterAggregator(RouterAggregator):
 
         for router, router_prefix in self.get_routers():
             app.include_router(router, prefix=router_prefix or "")
-        self.mount_static_resources(app, self._prefix)
+        self.mount_static_resources(app, self.prefix)
         self._mounted_apps.add(app)
 
     @property

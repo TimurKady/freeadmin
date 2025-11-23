@@ -37,9 +37,6 @@ class AdminGuardMiddleware(BaseHTTPMiddleware):
     ) -> None:
         super().__init__(app)
         self._settings = settings or current_settings()
-        self.prefix = system_config.get_cached(
-            SettingsKey.ADMIN_PREFIX, self._settings.admin_path
-        ).rstrip("/")
         self._login_path: str | None = None
         self._logout_path: str | None = None
         self._setup_path: str | None = None
@@ -117,7 +114,12 @@ class AdminGuardMiddleware(BaseHTTPMiddleware):
     def _apply_settings(self, settings: FreeAdminSettings) -> None:
         """Refresh cached prefix and settings after reconfiguration."""
         self._settings = settings
-        self.prefix = system_config.get_cached(
+
+    @property
+    def prefix(self) -> str:
+        """Return the active admin prefix sourced from runtime settings."""
+
+        return system_config.get_cached(
             SettingsKey.ADMIN_PREFIX, self._settings.admin_path
         ).rstrip("/")
 
