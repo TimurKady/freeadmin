@@ -335,6 +335,7 @@ class Adapter:
             if normalized:
                 await manager.add(*normalized)
 
+
         return obj
 
     async def get(
