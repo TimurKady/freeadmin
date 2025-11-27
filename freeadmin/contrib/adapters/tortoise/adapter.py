@@ -273,11 +273,20 @@ class Adapter:
         conn_name = self._resolve_connection_name()
         return in_transaction(conn_name)
 
-    async def create(self, model_cls: type[Model], **data: Any) -> Model:
+    async def create(
+        self,
+        model_cls: type[Model],
+        *,
+        include_m2m: Iterable[str] | None = None,
+        **data: Any,
+    ) -> Model:
         """Create and persist a model instance.
 
         Args:
             model_cls: Model class to instantiate.
+            include_m2m: Iterable of many-to-many field names whose values are
+                provided in ``data`` and should be assigned after instance
+                creation.
             **data: Field values for the new record.
 
         Returns:
@@ -285,8 +294,29 @@ class Adapter:
 
         This coroutine must be awaited.
         """
+        include_m2m = list(include_m2m or [])
+        m2m_values: dict[str, list[Any]] = {}
+
+        for fname in include_m2m:
+            if fname not in data:
+                continue
+            value = data.pop(fname)
+            if value is None:
+                m2m_values[fname] = []
+                continue
+            if isinstance(value, (list, tuple, set)):
+                m2m_values[fname] = list(value)
+            else:
+                m2m_values[fname] = [value]
+
         data = self.normalize_import_data(model_cls, data)
-        return await model_cls.create(**data)
+        obj = await model_cls.create(**data)
+
+        for fname, values in m2m_values.items():
+            manager = getattr(obj, fname)
+            await manager.add(*values)
+
+        return obj
 
     async def get(
         self,
