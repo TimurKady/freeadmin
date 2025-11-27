@@ -16,6 +16,7 @@ Email: timurkady@yandex.com
 
 from __future__ import annotations
 
+from inspect import isawaitable
 from typing import Any, Iterable
 
 from tortoise import Tortoise, connections
@@ -511,7 +512,9 @@ class Adapter:
         """
         if manager is None:
             return
-        await manager.clear()
+        clear_result = manager.clear()
+        if isawaitable(clear_result):
+            await clear_result
 
     async def m2m_add(self, manager, objs: Iterable[Model]) -> None:
         """Add multiple objects to a many-to-many relation manager.
