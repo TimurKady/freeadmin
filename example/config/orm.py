@@ -40,7 +40,7 @@ ORM_CONFIG: Dict[str, Dict[str, Any]] = {
             "models": list(ADMIN_APP_MODULES),
             "default_connection": "default",
         },
-        "demo": {
+        "models": {
             "models": list(MODELS_APP_MODULES),
             "default_connection": "default",
         },
