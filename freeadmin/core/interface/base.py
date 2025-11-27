@@ -680,7 +680,9 @@ class BaseModelAdmin:
         Subclasses may override this to provide custom responses and may raise
         :class:`AdminIntegrityError` with an appropriate message.
         """
-        raise AdminIntegrityError("Integrity error.")
+        detail = str(exc).strip()
+        message = f"Integrity error: {detail}" if detail else "Integrity error."
+        raise AdminIntegrityError(message)
 
     def _flatten_fields(self, items: Iterable[Any]) -> list[str]:
         """Recursively flatten nested field groups into a plain list."""
