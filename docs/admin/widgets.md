@@ -289,11 +289,13 @@ class UserAdmin(ModelAdmin):
 - **Registration key:** `textarea` (`@registry.register("textarea")`)
 - **Purpose:** multi-line text input with optional Ace-based syntax highlighting.
 - **Main options:** `format: "textarea"`. To enable highlighting, set
-  `FieldDescriptor.meta["syntax"]` to an Ace mode (e.g. `"python"`). An
-  optional `FieldDescriptor.meta["ace_theme"]` chooses the theme
-  (default `"chrome"`). The generated schema includes `options.ace` with the
-  corresponding `mode` and `theme`. When syntax highlighting is enabled, the
-  widget's asset bundler ensures the Ace library is loaded automatically.
+  `FieldDescriptor.meta["syntax"]` to an Ace mode (e.g. `"python"`) or pass an
+  `ace` configuration when instantiating the widget. An optional
+  `FieldDescriptor.meta["ace_theme"]` chooses the theme (default `"chrome"`).
+  The generated schema includes `options.ace` with the corresponding `mode` and
+  `theme`. When syntax highlighting is enabled—either via field metadata or the
+  widget's `ace` argument—the widget's asset bundler ensures the Ace library is
+  loaded automatically.
 
 ```python
 from freeadmin.core.interface.models import ModelAdmin
@@ -311,6 +313,42 @@ class ArticleAdmin(ModelAdmin):
 ```
 
 `options.simplemde` configures the embedded SimpleMDE editor, and the provided widget instance is preserved by `BaseModelAdmin`.
+
+#### Examples with syntax highlighting
+
+The widget can enable Ace highlighting either via field metadata or through the
+`ace` argument at instantiation time. The following examples demonstrate common
+configurations:
+
+```python
+from freeadmin.core.interface.models import ModelAdmin
+from freeadmin.contrib.widgets import TextAreaWidget
+
+
+class JsonPostAdmin(ModelAdmin):
+    class Meta:
+        widgets = {
+            "payload": TextAreaWidget(
+                format="textarea",
+                ace={"mode": "json", "theme": "chrome"},
+            ),
+        }
+```
+
+```python
+from freeadmin.core.interface.models import ModelAdmin
+from freeadmin.contrib.widgets import TextAreaWidget
+
+
+class ScriptAdmin(ModelAdmin):
+    class Meta:
+        widgets = {
+            "script": TextAreaWidget(
+                format="textarea",
+                ace={"mode": "python", "theme": "monokai"},
+            ),
+        }
+```
 
 #### Example with additional parameters
 
