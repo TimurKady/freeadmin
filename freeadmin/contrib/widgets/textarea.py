@@ -37,7 +37,7 @@ class TextAreaWidget(BaseWidget):
         fd = self.ctx.field
         meta = getattr(fd, "meta", {}) or {}
 
-        fmt = self.config.get("format", "textarea")
+        fmt = self.config.get("format") or ("ace" if self._needs_ace() else "textarea")
         schema: Dict[str, Any] = {
             "type": "string",
             "format": fmt,
@@ -63,6 +63,8 @@ class TextAreaWidget(BaseWidget):
                 ace_options["mode"] = mode_path
             if theme_path:
                 ace_options.setdefault("theme", theme_path)
+
+            ace_options.setdefault("use_ace_editor", True)
 
             options["ace"] = ace_options
 
