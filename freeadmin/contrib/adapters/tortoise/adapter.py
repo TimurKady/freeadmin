@@ -20,6 +20,7 @@ from typing import Any, Iterable
 
 from tortoise import Tortoise, connections
 from tortoise import fields
+from tortoise.fields.relational import ManyToManyRelation
 from tortoise.exceptions import (
     ConfigurationError,
     DoesNotExist as TortoiseDoesNotExist,
@@ -103,6 +104,19 @@ class Adapter:
         self.system_setting_model = SystemSetting
         self.setting_value_type = SettingValueType
 
+    def _normalize_relation_value(self, field: Any, value: Any) -> Any:
+        """Return a primary-key friendly representation for relation values."""
+        related_model = getattr(field, "related_model", None)
+        pk_attr = self.get_pk_attr(related_model) if related_model else "id"
+        if isinstance(value, dict):
+            if pk_attr in value:
+                return value[pk_attr]
+            if "id" in value:
+                return value["id"]
+        if isinstance(value, str) and value.isdigit():
+            return int(value)
+        return value
+
     def normalize_import_data(self, model: type[Model], data: dict[str, Any]) -> dict[str, Any]:
         """Convert raw import values into ORM-friendly types."""
         meta = getattr(model, "_meta", None)
@@ -121,10 +135,11 @@ class Adapter:
                     fields.relational.OneToOneFieldInstance,
                 ),
             ):
+                normalized_value = self._normalize_relation_value(field, value)
                 if getattr(value, "_saved_in_db", False):
                     cleaned[name] = value
                 else:
-                    cleaned[f"{name}_id"] = value
+                    cleaned[f"{name}_id"] = normalized_value
                 continue
             if getattr(field, "enum_type", None) and isinstance(value, str):
                 if value.isdigit():
@@ -273,11 +288,20 @@ class Adapter:
         conn_name = self._resolve_connection_name()
         return in_transaction(conn_name)
 
-    async def create(self, model_cls: type[Model], **data: Any) -> Model:
+    async def create(
+        self,
+        model_cls: type[Model],
+        *,
+        include_m2m: Iterable[str] | None = None,
+        **data: Any,
+    ) -> Model:
         """Create and persist a model instance.
 
         Args:
             model_cls: Model class to instantiate.
+            include_m2m: Iterable of many-to-many field names whose values are
+                provided in ``data`` and should be assigned after instance
+                creation.
             **data: Field values for the new record.
 
         Returns:
@@ -285,8 +309,79 @@ class Adapter:
 
         This coroutine must be awaited.
         """
+        include_m2m = set(include_m2m or [])
+        meta = getattr(model_cls, "_meta", None)
+        for fname in getattr(meta, "m2m_fields", set()):
+            include_m2m.add(fname)
+
+        m2m_values: dict[str, list[Any]] = {}
+
+        for fname in include_m2m:
+            if fname not in data:
+                continue
+            value = data.pop(fname)
+            if value is None:
+                m2m_values[fname] = []
+                continue
+            if isinstance(value, (list, tuple, set)):
+                m2m_values[fname] = list(value)
+            else:
+                m2m_values[fname] = [value]
+
         data = self.normalize_import_data(model_cls, data)
-        return await model_cls.create(**data)
+        obj = await model_cls.create(**data)
+
+        for fname, values in m2m_values.items():
+            cached_value = getattr(obj, "__dict__", {}).get(fname)
+            if cached_value is not None and not hasattr(cached_value, "remote_model"):
+                obj.__dict__.pop(fname, None)
+            manager_descriptor = getattr(type(obj), fname, None)
+            manager = (
+                manager_descriptor.__get__(obj, type(obj))
+                if hasattr(manager_descriptor, "__get__")
+                else getattr(obj, fname)
+            )
+            if not hasattr(manager, "remote_model"):
+                field = getattr(obj._meta, "fields_map", {}).get(fname)
+                if field is not None:
+                    manager = ManyToManyRelation(obj, field)
+            prefetched_map = getattr(obj, "_prefetched_map", None)
+            if isinstance(prefetched_map, dict):
+                prefetched_map[fname] = manager
+            else:
+                obj._prefetched_map = {fname: manager}
+            remote_model = manager.remote_model
+            pk_attr = self.get_pk_attr(remote_model)
+
+            normalized_instances: list[Any] = []
+            pending_pks: list[Any] = []
+
+            for value in values:
+                if value is None:
+                    continue
+                if isinstance(value, remote_model):
+                    normalized_instances.append(value)
+                    continue
+                if isinstance(value, dict):
+                    if pk_attr in value:
+                        pending_pks.append(value[pk_attr])
+                        continue
+                    if "id" in value:
+                        pending_pks.append(value["id"])
+                        continue
+                if isinstance(value, str) and value.isdigit():
+                    pending_pks.append(int(value))
+                    continue
+                pending_pks.append(value)
+
+            if pending_pks:
+                fetched = await remote_model.filter(**{f"{pk_attr}__in": pending_pks})
+                normalized_instances.extend(fetched)
+
+            if normalized_instances:
+                await manager.add(*normalized_instances)
+
+        return obj
 
     async def get(
         self,
@@ -377,7 +472,7 @@ class Adapter:
         """
         await obj.delete()
 
-    async def fetch_related(self, obj: Model, *fields: str) -> None:
+    async def fetch_related(self, obj: Model, *related_fields: str) -> None:
         """Populate related fields on an object.
 
         Args:
@@ -386,7 +481,25 @@ class Adapter:
 
         This coroutine must be awaited.
         """
-        await obj.fetch_related(*fields)
+        prefetched_map = getattr(obj, "_prefetched_map", None)
+        remaining_fields: list[str] = []
+
+        for fname in related_fields:
+            field = getattr(getattr(obj, "_meta", None), "fields_map", {}).get(fname)
+            if isinstance(field, fields.relational.ManyToManyFieldInstance):
+                relation = ManyToManyRelation(obj, field)
+                related = await relation.all()
+                relation._set_result_for_query(related, None)
+                if isinstance(prefetched_map, dict):
+                    prefetched_map[fname] = relation
+                else:
+                    prefetched_map = {fname: relation}
+                    obj._prefetched_map = prefetched_map
+                continue
+            remaining_fields.append(fname)
+
+        if remaining_fields:
+            await obj.fetch_related(*remaining_fields)
 
     async def m2m_clear(self, manager) -> None:
         """Clear all links from a many-to-many relation manager.
