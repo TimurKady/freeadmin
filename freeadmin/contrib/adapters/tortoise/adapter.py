@@ -314,7 +314,27 @@ class Adapter:
 
         for fname, values in m2m_values.items():
             manager = getattr(obj, fname)
-            await manager.add(*values)
+            remote_model = manager.remote_model
+            pk_attr = self.get_pk_attr(remote_model)
+
+            normalized: list[Any] = []
+            for value in values:
+                if value is None:
+                    continue
+                if isinstance(value, remote_model):
+                    normalized.append(value)
+                    continue
+                if isinstance(value, dict) and pk_attr in value:
+                    normalized.append(value[pk_attr])
+                    continue
+                if isinstance(value, str) and value.isdigit():
+                    normalized.append(int(value))
+                    continue
+                normalized.append(value)
+
+            if normalized:
+                await manager.add(*normalized)
+
 
         return obj
 
