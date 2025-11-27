@@ -1,5 +1,5 @@
 # FastAPI FreeAdmin 
-## Coming soon
+## Coming soon (Q1 2026)
 
 **Modular admin panel for FastAPI and Tortoise ORM**
 
