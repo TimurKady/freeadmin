@@ -102,7 +102,8 @@ class BaseModelAdmin:
 
     def __init_subclass__(cls, **kwargs):  # type: ignore[override]
         super().__init_subclass__(**kwargs)
-        collected: dict[str, Any] = {}
+        inherited = dict(getattr(cls, "widgets_overrides", {}) or {})
+        collected: dict[str, Any] = inherited
         meta = getattr(cls, "Meta", None)
         if meta is not None:
             collected.update(getattr(meta, "widgets", {}) or {})

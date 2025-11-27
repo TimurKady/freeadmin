@@ -154,6 +154,23 @@ class TestInlineAdmin:
         resp = self.client.get(f"/admin/orm/models/parent/{parent.id}/_inlines")
         assert resp.json()[0]["count"] == 0
 
+    def test_edit_page_renders_inline_container(self) -> None:
+        """Ensure the edit form loads with inline host markup and assets."""
+
+        parent = asyncio.run(Parent.create(name="p4"))
+
+        resp = self.client.get(f"/admin/orm/models/parent/{parent.id}/edit")
+        assert resp.status_code == 200
+        html = resp.text
+        assert "id=\"inline-root\"" in html
+        assert "admin-form.js" in html
+
+        inline_resp = self.client.get(
+            f"/admin/orm/models/parent/{parent.id}/_inlines"
+        )
+        assert inline_resp.status_code == 200
+        assert inline_resp.json() != []
+
 
 # The End
 

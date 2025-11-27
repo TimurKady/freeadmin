@@ -2,7 +2,7 @@
 
 ## WidgetContext
 
-The `contrib/admin/widgets/context.py` module provides an immutable `WidgetContext` passed to every widget. The context stores metadata about the model, current request, and model instance:
+The `freeadmin/contrib/widgets/context.py` module provides an immutable `WidgetContext` passed to every widget. The context stores metadata about the model, current request, and model instance:
 
 ```python
 from freeadmin.contrib.widgets.context import WidgetContext
@@ -30,6 +30,8 @@ Field overview:
 - ``instance`` – current object, ``None`` on add.
 - ``mode`` – current admin view: ``add`` | ``edit`` | ``list``.
 - ``request`` – optional FastAPI ``Request``.
+- ``readonly`` – ``True`` when the field is read-only for the current mode.
+- ``prefix`` – admin URL prefix used when resolving static assets.
 
 Within a widget it's more convenient to access the instance via :meth:`BaseWidget.get_instance`.
 
@@ -44,6 +46,8 @@ from freeadmin.contrib.widgets import BaseWidget, registry
 class RatingWidget(BaseWidget):
     ...
 ```
+
+Admin classes can override default widget resolution via ``Meta.widgets`` or the ``widgets`` attribute. Both mappings are merged together and inherited down the admin subclass chain, so base admin classes can define shared overrides reused by derived classes.
 
 ### BaseWidget utilities
 
