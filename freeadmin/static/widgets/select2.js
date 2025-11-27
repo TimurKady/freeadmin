@@ -1,7 +1,13 @@
 // static/widgets/select2.js
 
 // Manager for integrating Select2 with JSONEditor lifecycle events.
-class Select2WidgetManager {
+(() => {
+  const globalSelect2Obj = typeof window !== 'undefined' ? window : globalThis;
+  if (globalSelect2Obj.Select2WidgetManager) {
+    return;
+  }
+
+  class Select2WidgetManager {
   constructor(globalObj) {
     this.global = globalObj;
     this.document = globalObj?.document || null;
@@ -230,11 +236,12 @@ class Select2WidgetManager {
       timer(() => banner.remove(), 5000);
     }
   }
-}
+  }
 
-Select2WidgetManager.instance = null;
+  Select2WidgetManager.instance = null;
 
-const select2GlobalObj = typeof window !== 'undefined' ? window : globalThis;
-Select2WidgetManager.bootstrap(select2GlobalObj);
+  globalSelect2Obj.Select2WidgetManager = Select2WidgetManager;
+  Select2WidgetManager.bootstrap(globalSelect2Obj);
+})();
 
 // # The End
