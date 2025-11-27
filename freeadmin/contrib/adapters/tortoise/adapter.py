@@ -509,6 +509,8 @@ class Adapter:
 
         This coroutine must be awaited.
         """
+        if manager is None:
+            return
         await manager.clear()
 
     async def m2m_add(self, manager, objs: Iterable[Model]) -> None:
@@ -520,6 +522,8 @@ class Adapter:
 
         This coroutine must be awaited.
         """
+        if manager is None:
+            return
         await manager.add(*objs)
 
     def values(self, qs: QuerySet, *fields: str) -> QuerySet:
