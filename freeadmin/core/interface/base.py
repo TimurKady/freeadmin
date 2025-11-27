@@ -1238,9 +1238,17 @@ class BaseModelAdmin:
         return data, m2m_ops
 
     async def m2m_clear(self, manager):
+        """Safely clear all links from the provided relation manager."""
+
+        if manager is None:
+            return
         await self.adapter.m2m_clear(manager)
 
     async def m2m_add(self, manager, objs: Iterable[Any]):
+        """Attach ``objs`` to the provided relation manager when available."""
+
+        if manager is None:
+            return
         await self.adapter.m2m_add(manager, objs)
 
     async def create(
