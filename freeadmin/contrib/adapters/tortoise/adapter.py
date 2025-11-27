@@ -103,6 +103,19 @@ class Adapter:
         self.system_setting_model = SystemSetting
         self.setting_value_type = SettingValueType
 
+    def _normalize_relation_value(self, field: Any, value: Any) -> Any:
+        """Return a primary-key friendly representation for relation values."""
+        related_model = getattr(field, "related_model", None)
+        pk_attr = self.get_pk_attr(related_model) if related_model else "id"
+        if isinstance(value, dict):
+            if pk_attr in value:
+                return value[pk_attr]
+            if "id" in value:
+                return value["id"]
+        if isinstance(value, str) and value.isdigit():
+            return int(value)
+        return value
+
     def normalize_import_data(self, model: type[Model], data: dict[str, Any]) -> dict[str, Any]:
         """Convert raw import values into ORM-friendly types."""
         meta = getattr(model, "_meta", None)
@@ -121,10 +134,11 @@ class Adapter:
                     fields.relational.OneToOneFieldInstance,
                 ),
             ):
+                normalized_value = self._normalize_relation_value(field, value)
                 if getattr(value, "_saved_in_db", False):
                     cleaned[name] = value
                 else:
-                    cleaned[f"{name}_id"] = value
+                    cleaned[f"{name}_id"] = normalized_value
                 continue
             if getattr(field, "enum_type", None) and isinstance(value, str):
                 if value.isdigit():
@@ -334,7 +348,6 @@ class Adapter:
 
             if normalized:
                 await manager.add(*normalized)
-
 
         return obj
 
