@@ -6,7 +6,7 @@ related objects directly inside the parent form while respecting backend contrac
 ## Quick start
 1. Define an inline class by subclassing the provided inline base.
 2. Register the inline with its parent admin class.
-3. Include required templates and static assets for dynamic form management so add/remove controls work as expected.
+3. Inline lists are rendered on the parent edit page via the ``/{pk}/_inlines`` endpoint and rely on ``admin-form.js`` to load ``admin-list.js`` dynamically. No extra template changes are required beyond the standard form template.
 
 ## Security considerations
 - Validate permissions for both parent and inline models.
@@ -28,6 +28,7 @@ related objects directly inside the parent form while respecting backend contrac
 - [ ] Creating and updating inline items persists data correctly.
 - [ ] Validation errors appear next to the affected inline fields.
 - [ ] Unauthorized users cannot view or modify restricted inlines.
+- [ ] Parent edit pages render the inline host container and load admin-form.js.
 
 ## Attributes
 - `model` – related model class
