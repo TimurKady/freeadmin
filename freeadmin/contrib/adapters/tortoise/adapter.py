@@ -17,6 +17,7 @@ Email: timurkady@yandex.com
 from __future__ import annotations
 
 from inspect import isawaitable
+import json
 from typing import Any, Iterable
 
 from tortoise import Tortoise, connections
@@ -118,6 +119,27 @@ class Adapter:
             return int(value)
         return value
 
+    def _normalize_json_value(self, value: Any) -> Any:
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                return value
+        return value
+
+    def _normalize_m2m_value(self, value: Any) -> list[Any]:
+        parsed = value
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                parsed = value
+        if parsed is None:
+            return []
+        if isinstance(parsed, (list, tuple, set)):
+            return list(parsed)
+        return [parsed]
+
     def normalize_import_data(self, model: type[Model], data: dict[str, Any]) -> dict[str, Any]:
         """Convert raw import values into ORM-friendly types."""
         meta = getattr(model, "_meta", None)
@@ -128,6 +150,12 @@ class Adapter:
             field = meta.fields_map.get(name)
             if not field:
                 cleaned[name] = value
+                continue
+            if isinstance(field, fields.JSONField):
+                cleaned[name] = self._normalize_json_value(value)
+                continue
+            if isinstance(field, fields.relational.ManyToManyFieldInstance):
+                cleaned[name] = self._normalize_m2m_value(value)
                 continue
             if isinstance(
                 field,
@@ -321,13 +349,7 @@ class Adapter:
             if fname not in data:
                 continue
             value = data.pop(fname)
-            if value is None:
-                m2m_values[fname] = []
-                continue
-            if isinstance(value, (list, tuple, set)):
-                m2m_values[fname] = list(value)
-            else:
-                m2m_values[fname] = [value]
+            m2m_values[fname] = self._normalize_m2m_value(value)
 
         data = self.normalize_import_data(model_cls, data)
         obj = await model_cls.create(**data)
