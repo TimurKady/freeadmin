@@ -329,13 +329,41 @@ class AdminFormEditor {
     this.autoOpenInlineFromHash();
   }
 
-  async ensureAdminList() {
+  getStaticBaseUrl() {
+    if (this._staticBaseUrl) return this._staticBaseUrl;
+
+    const scriptEl = document.querySelector('script[src*="admin-form.js"]');
+    const src = scriptEl ? scriptEl.getAttribute('src') : null;
+
+    if (src) {
+      try {
+        const url = new URL(src, window.location.href);
+        this._staticBaseUrl = url.href.replace(/admin-form\.js([?#].*)?$/, '');
+        return this._staticBaseUrl;
+      } catch (err) {
+        console.warn('Failed to resolve admin-form.js base URL', err);
+      }
+    }
+
     const root = this.prefix.replace(/\/(orm|settings)$/i, '');
+    this._staticBaseUrl = `${root}/static/`;
+    return this._staticBaseUrl;
+  }
+
+  getStaticAssetUrl(assetName) {
+    const base = this.getStaticBaseUrl();
+    if (!base.endsWith('/')) {
+      return `${base}/${assetName}`;
+    }
+    return `${base}${assetName}`;
+  }
+
+  async ensureAdminList() {
+    const url = this.getStaticAssetUrl('admin-list.js');
     if (window.AdminList) {
-      return `${root}/static/admin-list.js`;
+      return url;
     }
     if (!this._adminListPromise) {
-      const url = `${root}/static/admin-list.js`;
       this._adminListPromise = new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = url;
