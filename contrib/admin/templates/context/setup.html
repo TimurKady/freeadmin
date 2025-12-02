@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="mb-3">Initial setup</h2>
+  <p class="text-muted">Create first superuser</p>
+  {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+  <form method="post" class="col-md-5">
+    <div class="mb-3">
+      <label class="form-label">Username</label>
+      <input name="username" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input name="email" type="email" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      <input type="password" name="password" class="form-control" required>
+    </div>
+    <button class="btn btn-success">Create superuser</button>
+  </form>
+{% endblock %}
+
+<!-- # The End -->

@@ -1,0 +1,41 @@
+{# Sidebar: accordion by apps; inside are links to models #}
+<aside class="w-100">
+  <div class="accordion" id="appsAccordion">
+    {% for app in apps %}
+      {% set app_label = app.label %}
+      {% set app_id = 'app-' ~ app_label|lower|replace(' ', '-') %}
+      <div class="accordion-item">
+        <h3 class="accordion-header" id="{{ app_id }}-hdr">
+          <button
+            class="accordion-button{% if app_label != current_app %} collapsed{% endif %} fw-bold"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#{{ app_id }}-col"
+            aria-expanded="{{ 'true' if app_label == current_app else 'false' }}"
+            aria-controls="{{ app_id }}-col">
+            {{ app.display }}
+          </button>
+        </h3>
+
+        <div id="{{ app_id }}-col"
+             class="accordion-collapse collapse{% if app_label == current_app %} show{% endif %}"
+             data-bs-parent="#appsAccordion">
+          <div class="accordion-body p-0">
+            <div class="list-group list-group-flush">
+              {% for p in app.models %}
+                {% set slug = p.model_name|lower %}
+                <a class="list-group-item list-group-item-action py-2{% if app_label==current_app and slug==current_model %} active{% endif %}"
+                   href="{{ prefix }}{{ p.path }}/">
+                  {% if p.icon %}<i class="bi {{ p.icon }} me-2"></i>{% endif %}
+                  {{ p.display_name }}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</aside>
+
+<!-- # The End -->

@@ -1,0 +1,16 @@
+<!-- Filters Offcanvas (right) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="filtersOffcanvas" aria-labelledby="filtersLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="filtersLabel">Filters</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+      <form id="filters-form" class="vstack gap-2"></form>
+    </div>
+  </div>
+
+<script src="{{ prefix }}/static/filter-panel.js"></script>
+<script>
+  window._filters = new FiltersPanel({ app: "{{ current_app }}", model: "{{ current_model }}", clearButtonId: 'clear-filters-btn' });
+  </script>
+

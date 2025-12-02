@@ -1,0 +1,43 @@
+{% extends "layout/section.html" %}
+
+{% block head %}
+  {{ super() }}
+  {% for href in assets.css %}
+  <link rel="stylesheet" href="{{ href }}">
+  {% endfor %}
+{% endblock %}
+
+{% block section_body %}
+  <section class="d-flex flex-column w-100 h-100">
+    <h2>{{ page_title }}</h2>
+    <div id="form-spinner" class="text-center my-4">
+      <div class="spinner-border" role="status"></div>
+    </div>
+    <div id="form-root" class="flex-grow-1 overflow-auto" style="min-height: 0;"></div>
+
+    <!-- buttons -->
+    <div class="d-flex gap-2 justify-content-end bg-light border rounded-2 mt-2 p-2">
+      <button id="submit" class="btn btn-primary">Save</button>
+      <button onclick="window.history.back();" class="btn btn-secondary">Cancel</button>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% for src in assets.js %}
+  <script src="{{ src }}"></script>
+  {% endfor %}
+  <script>
+    if (window.ace?.config?.set) {
+      window.ace.config.set("basePath", "https://cdn.jsdelivr.net/npm/ace-builds@latest/src-noconflict/");
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+  <script src="{{ prefix }}/static/admin-form.js"></script>
+  <script>
+    new AdminFormEditor({ pk: "{{ pk or '' }}", prefix: "{{ prefix }}" }).load();
+  </script>
+{% endblock %}
+
+<!-- # The End -->
