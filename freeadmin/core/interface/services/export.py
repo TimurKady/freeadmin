@@ -37,8 +37,16 @@ class FieldSerializer:
 
     Supported types include ``datetime``/``date`` (ISO 8601), ``list``/``tuple``
     (recursively serialized), ``set`` (converted to list) and nested
-    structures like ``dict``.
+    structures like ``dict``. When possible, the serializer leverages model
+    descriptors to format JSON and many-to-many fields into stable string
+    representations suitable for tabular exports.
     """
+
+    def __init__(self, adapter: BaseAdapter | None = None) -> None:
+        """Create a serializer optionally aware of the admin adapter."""
+
+        self.adapter = adapter
+        self._descriptor_cache: dict[type[Any], Any] = {}
 
     def serialize(self, obj: Any, field: str) -> Any:
         """Return serialized value for ``field`` on ``obj``."""
@@ -46,6 +54,12 @@ class FieldSerializer:
         if hasattr(obj, id_field):
             return getattr(obj, id_field)
         value = getattr(obj, field, None)
+        descriptor = self._field_descriptor_for(obj, field)
+        if descriptor is not None:
+            if descriptor.kind == "json":
+                return self._serialize_json_value(value)
+            if getattr(descriptor.relation, "kind", None) == "m2m":
+                return self._serialize_m2m_value(value)
         return self._serialize(value)
 
     def _serialize(self, value: Any) -> Any:
@@ -102,6 +116,43 @@ class FieldSerializer:
             except Exception:
                 pass
         return str(value)
+
+    def _serialize_json_value(self, value: Any) -> str:
+        parsed = value
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                parsed = value
+        prepared = self._serialize(parsed)
+        return json.dumps(prepared, ensure_ascii=False)
+
+    def _serialize_m2m_value(self, value: Any) -> str:
+        prepared = self._serialize(value)
+        if isinstance(prepared, str):
+            try:
+                prepared = json.loads(prepared)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                prepared = [prepared]
+        if prepared is None:
+            prepared = []
+        if not isinstance(prepared, list):
+            prepared = [prepared]
+        filtered = [v for v in prepared if v is not None]
+        return json.dumps(filtered, ensure_ascii=False)
+
+    def _field_descriptor_for(self, obj: Any, field: str) -> Any:
+        if self.adapter is None:
+            return None
+        model_cls = obj.__class__
+        descriptor = self._descriptor_cache.get(model_cls)
+        if descriptor is None:
+            descriptor = self.adapter.get_model_descriptor(model_cls)
+            self._descriptor_cache[model_cls] = descriptor
+        try:
+            return descriptor.fields_map[field]
+        except Exception:
+            return None
 
 
 @dataclass
@@ -525,7 +576,7 @@ class ExportService:
         self.settings = settings or current_settings()
         self.tmp_dir = tmp_dir or tempfile.gettempdir()
         self.ttl = ttl if ttl is not None else self.settings.export_cache_ttl
-        self.serializer = serializer or FieldSerializer()
+        self.serializer = serializer or FieldSerializer(adapter)
         self.cache = cache_backend or SQLiteExportCacheBackend(
             path=self.settings.export_cache_path
         )
