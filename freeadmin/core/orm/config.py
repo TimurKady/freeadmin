@@ -310,9 +310,12 @@ class ORMConfig:
         for module in adapter_modules:
             if module not in admin_modules:
                 admin_modules.append(module)
-        aerich_modules = merged.setdefault("aerich", [])
-        if self._has_aerich_support() and "aerich.models" not in aerich_modules:
-            aerich_modules.append("aerich.models")
+        # Tortoise 1.x rejects apps without models, so ``aerich`` is declared
+        # only when the package is installed.
+        if self._has_aerich_support():
+            aerich_modules = merged.setdefault("aerich", [])
+            if "aerich.models" not in aerich_modules:
+                aerich_modules.append("aerich.models")
         return merged
 
     def _initialize_config(self, config: Mapping[str, Any] | None) -> Dict[str, Any]:
@@ -414,6 +417,16 @@ class ORMConfig:
         admin_app["default_connection"] = str(default_name)
 
     def _ensure_aerich_app(self, apps: MutableMapping[str, Dict[str, Any]]) -> None:
+        if not self._has_aerich_support():
+            # Tortoise 1.x rejects apps without models; drop the placeholder.
+            aerich_app = apps.get("aerich")
+            if aerich_app is not None:
+                models = [m for m in aerich_app.get("models", []) if m != "aerich.models"]
+                if models:
+                    aerich_app["models"] = models
+                else:
+                    del apps["aerich"]
+            return
         aerich_app = apps.setdefault(
             "aerich",
             {
@@ -422,11 +435,8 @@ class ORMConfig:
             },
         )
         models = aerich_app.setdefault("models", [])
-        if self._has_aerich_support():
-            if "aerich.models" not in models:
-                models.append("aerich.models")
-        else:
-            models[:] = [module for module in models if module != "aerich.models"]
+        if "aerich.models" not in models:
+            models.append("aerich.models")
         default_name = aerich_app.get("default_connection", self._default_connection)
         aerich_app["default_connection"] = str(default_name)
 

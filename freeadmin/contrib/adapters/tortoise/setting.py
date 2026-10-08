@@ -29,28 +29,32 @@ class SettingValueType(StrChoices):
     JSON = "json", "JSON"
 
 
+class SettingJSONField(fields.JSONField):
+    """JSON field that accepts plain strings.
+
+    Defined at module level so Tortoise migrations can import it by path.
+    """
+
+    def to_python_value(self, value: Any) -> Any:  # pragma: no cover - wrapper
+        if isinstance(value, str):
+            try:
+                return self.decoder(value)
+            except Exception:
+                return value
+        return super().to_python_value(value)
+
+    def to_db_value(self, value: Any, instance: type[Model] | Model) -> str | None:  # pragma: no cover - wrapper
+        if isinstance(value, str):
+            return json.dumps(value)
+        return super().to_db_value(value, instance)
+
+
 class SystemSetting(Model):
     """A single persisted system configuration value."""
 
     id = fields.IntField(pk=True)
     name = fields.CharField(max_length=150)
     key = fields.CharField(max_length=150, unique=True)
-    class SettingJSONField(fields.JSONField):
-        """JSON field that accepts plain strings."""
-
-        def to_python_value(self, value: Any) -> Any:  # pragma: no cover - wrapper
-            if isinstance(value, str):
-                try:
-                    return self.decoder(value)
-                except Exception:
-                    return value
-            return super().to_python_value(value)
-
-        def to_db_value(self, value: Any, instance: type[Model] | Model) -> str | None:  # pragma: no cover - wrapper
-            if isinstance(value, str):
-                return json.dumps(value)
-            return super().to_db_value(value, instance)
-
     value = SettingJSONField()
     value_type = fields.CharEnumField(SettingValueType)
     meta = fields.JSONField(null=True)

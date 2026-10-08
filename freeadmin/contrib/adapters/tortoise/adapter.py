@@ -192,11 +192,16 @@ class Adapter:
         Returns:
             type[Model]: Resolved model class.
         """
-        try:
-            return Tortoise.get_model(dotted)
-        except (AttributeError, KeyError, ConfigurationError):  # pragma: no cover - legacy support
-            app_label, model_name = dotted.rsplit(".", 1)
-            return Tortoise.apps.get(app_label, {}).get(model_name)  # type: ignore
+        app_label, model_name = dotted.rsplit(".", 1)
+        apps = Tortoise.apps
+        if apps is None:
+            return None  # type: ignore[return-value]
+        if hasattr(apps, "get_model"):  # Tortoise >= 1.0: ``Apps`` registry
+            try:
+                return apps.get_model(app_label, model_name)
+            except ConfigurationError:
+                return None  # type: ignore[return-value]
+        return apps.get(app_label, {}).get(model_name)  # type: ignore
 
     def get_pk_attr(self, model: type[Any]) -> str:
         """Return the primary-key attribute name for ``model``.

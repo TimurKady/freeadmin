@@ -100,7 +100,9 @@ class ModelRegistrar:
         if getattr(adapter, "name", None) == "tortoise":
             from tortoise import Tortoise
 
-            if base_label in Tortoise.apps:
+            # Tortoise 1.x exposes ``apps`` as ``None`` until a context is initialised.
+            apps = Tortoise.apps
+            if apps is not None and base_label in apps:
                 self._registry.mark_registered(base_label, available_modules)
 
     def add_config(self, config: AppConfig) -> None:
